@@ -5,5 +5,5 @@ import org.bukkit.NamespacedKey
 import org.bukkit.World
 
 fun getBossBarNamespace(world: World): NamespacedKey {
-    return BloodNight.getNamespacedKey("bossBar${world.name}")
+    return BloodNight.namespacedKey("bossBar${world.name}")
 }

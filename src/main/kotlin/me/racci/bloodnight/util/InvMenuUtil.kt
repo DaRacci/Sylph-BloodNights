@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 
-class InvMenuUtil {
+object InvMenuUtil {
     private val INV_MENU_UTIL = "inv_menu_util"
     private val BOOLEAN_KEY: NamespacedKey = NamespacedKey(INV_MENU_UTIL, "boolean")
 
