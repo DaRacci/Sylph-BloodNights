@@ -1,39 +1,41 @@
 package me.racci.bloodnight.config.worldsettings.mobsettings
 
-import lombok.Getter
+import de.eldoria.eldoutilities.serialization.SerializationUtil
+import de.eldoria.eldoutilities.utils.EnumUtil
+import org.bukkit.configuration.serialization.ConfigurationSerializable
+import org.bukkit.configuration.serialization.SerializableAs
 
-@Setter
-@Getter
 @SerializableAs("bloodNightVanillaMobSettings")
 class VanillaMobSettings : ConfigurationSerializable {
     /**
      * The modifier which will be multiplied with monster damage when a non special mob deals damage to players.
      */
-    private var damageMultiplier = 2.0
+    var damageMultiplier = 2.0
 
     /**
      * The value the damage will be divided by when a player damages a non special mob
      */
-    private var healthMultiplier = 2.0
+    var healthMultiplier = 2.0
 
     /**
      * The modifier which will be multiplied with the dropped item amount.
      */
-    private var dropMultiplier = 2.0
-    private var vanillaDropMode = VanillaDropMode.VANILLA
-    private var extraDrops = 1
+    var dropMultiplier = 2.0
+    var vanillaDropMode = VanillaDropMode.VANILLA
+    var extraDrops = 1
 
-    constructor() {}
-    constructor(objectMap: Map<String?, Any?>?) {
-        val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        damageMultiplier = map.getValueOrDefault<Double>("damageMultiplier", damageMultiplier)
-        healthMultiplier = map.getValueOrDefault<Double>("healthMultiplier", healthMultiplier)
-        dropMultiplier = map.getValueOrDefault<Double>("dropMultiplier", dropMultiplier)
-        vanillaDropMode = EnumUtil.parse<VanillaDropMode>(
-            map.getValueOrDefault<String>("vanillaDropMode", vanillaDropMode.name),
+    constructor()
+
+    constructor(objectMap: Map<String, Any>) {
+        val map             = SerializationUtil.mapOf(objectMap)
+        damageMultiplier    = map.getValueOrDefault("damageMultiplier", damageMultiplier)
+        healthMultiplier    = map.getValueOrDefault("healthMultiplier", healthMultiplier)
+        dropMultiplier      = map.getValueOrDefault("dropMultiplier", dropMultiplier)
+        vanillaDropMode     = EnumUtil.parse(
+            map.getValueOrDefault("vanillaDropMode", vanillaDropMode.name),
             VanillaDropMode::class.java
         )
-        extraDrops = map.getValueOrDefault<Int>("extraDrops", extraDrops)
+        extraDrops          = map.getValueOrDefault("extraDrops", extraDrops)
     }
 
     override fun serialize(): Map<String, Any> {

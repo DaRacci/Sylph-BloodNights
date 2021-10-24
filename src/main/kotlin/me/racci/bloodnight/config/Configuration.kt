@@ -55,7 +55,7 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
         setVersion(2, false)
         mainConfig.config["updateReminder"] = null
         val worldList =
-            mainConfig.config["worldSettings", ArrayList<WorldSettings>()] as? ArrayList<WorldSettings> ?: ArrayList<WorldSettings>()
+            mainConfig.config["worldSettings", ArrayList<WorldSettings>()] as? ArrayList<WorldSettings> ?: ArrayList()
         val worldSettings = Paths.get(plugin.dataFolder.toPath().toString(), "worldSettings")
         worldList.forEach{loadConfig(
             getWorldConfigPath(it.worldName),
@@ -70,14 +70,14 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
 
     // Make sure using true as default is ok
     private fun loadWorldSettings(world: String, reload: Boolean = true): WorldSettings {
-        return if(reload) ({
+        return if(reload) {
             worldSettings.compute(world) { _, _ ->
                 val config = loadConfig(getWorldConfigPath(world), { c ->
                     c["version"] = 1
                     c["settings"] = WorldSettings(world)
                 }, true); config.getObject("settings", WorldSettings::class.java, WorldSettings(world))
-            }
-        })!! else {
+            }!!
+        } else {
             worldSettings.computeIfAbsent(world, Function<String, WorldSettings> {
                 val config = loadConfig(getWorldConfigPath(world), { c ->
                     c["version"] = 1

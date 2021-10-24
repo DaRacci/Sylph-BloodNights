@@ -1,50 +1,60 @@
-package me.racci.bloodnight.core.mobfactory;
+package me.racci.bloodnight.core.mobfactory
 
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSettings;
-import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil;
-import de.eldoria.eldoutilities.localization.ILocalizer;
-import de.eldoria.eldoutilities.utils.AttributeUtil;
-import lombok.Getter;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import de.eldoria.eldoutilities.localization.ILocalizer
+import de.eldoria.eldoutilities.utils.AttributeUtil
+import me.racci.bloodnight.config.worldsettings.mobsettings.MobSetting
+import me.racci.bloodnight.config.worldsettings.mobsettings.MobSettings
+import me.racci.bloodnight.core.BloodNight
+import me.racci.bloodnight.specialmobs.SpecialMob
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
+import org.bukkit.attribute.Attribute
+import org.bukkit.attribute.AttributeInstance
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
+import java.util.function.Function
 
-import java.util.function.Function;
+class MobFactory(
+    entityType: EntityType,
+    clazz: Class<out SpecialMob<*>>,
+    factory: Function<LivingEntity, SpecialMob<*>>
+) {
+    val factory: Function<LivingEntity, SpecialMob<*>>
+    val mobName: String
+    val entityType: EntityType
 
-@Getter
-public final class MobFactory {
-    private final Function<LivingEntity, SpecialMob<?>> factory;
-    private final String mobName;
-    private final EntityType entityType;
-
-    public MobFactory(EntityType entityType, Class<? extends SpecialMob<?>> clazz, Function<LivingEntity, SpecialMob<?>> factory) {
-        this.entityType = entityType;
-        this.factory = factory;
-        this.mobName = clazz.getSimpleName();
+    fun wrap(entity: LivingEntity, mobSettings: MobSettings, mobSetting: MobSetting): SpecialMob<*> {
+        SpecialMobUtil.tagSpecialMob(entity)
+        applySettings(entity, mobSettings, mobSetting)
+        return factory.apply(entity)
     }
 
-    public SpecialMob<?> wrap(LivingEntity entity, MobSettings mobSettings, MobSetting mobSetting) {
-        SpecialMobUtil.tagSpecialMob(entity);
-        applySettings(entity, mobSettings, mobSetting);
-        return factory.apply(entity);
-    }
-
-    private void applySettings(LivingEntity entity, MobSettings mobSettings, MobSetting mobSetting) {
-        AttributeInstance damage = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE);
-        AttributeUtil.setAttributeValue(entity, damage.getAttribute(), Math.min(mobSetting.applyDamage(damage.getValue(), mobSettings.getDamageMultiplier()), 2048));
-        AttributeInstance health = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        AttributeUtil.setAttributeValue(entity, health.getAttribute(), Math.min(mobSetting.applyHealth(health.getValue(), mobSettings.getHealthModifier()), 2048));
-        SpecialMobUtil.setSpecialMobType(entity, mobSetting.getMobName());
-        entity.setHealth(health.getValue());
-        String displayName = mobSetting.getDisplayName();
-        if (displayName.trim().isEmpty()) {
-            displayName = ILocalizer.getPluginLocalizer(BloodNight.class).getMessage("mob." + mobSetting.getMobName());
+    private fun applySettings(entity: LivingEntity, mobSettings: MobSettings, mobSetting: MobSetting) {
+        val damage: AttributeInstance = entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)!!
+        AttributeUtil.setAttributeValue(
+            entity,
+            damage.attribute,
+            mobSetting.applyDamage(damage.value, mobSettings.damageMultiplier).coerceAtMost(2048.0)
+        )
+        val health: AttributeInstance = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!
+        AttributeUtil.setAttributeValue(
+            entity,
+            health.attribute,
+            mobSetting.applyHealth(health.value, mobSettings.healthModifier).coerceAtMost(2048.0)
+        )
+        SpecialMobUtil.setSpecialMobType(entity, mobSetting.mobName)
+        entity.health = health.value
+        var displayName = mobSetting.displayName ?: ""
+        if (displayName.trim { it <= ' ' }.isEmpty()) {
+            displayName =
+                ILocalizer.getPluginLocalizer(BloodNight::class.java).getMessage("mob." + mobSetting.mobName)
         }
-        entity.setCustomName(displayName);
-        entity.setCustomNameVisible(mobSettings.isDisplayMobNames());
+        entity.customName = displayName
+        entity.isCustomNameVisible = mobSettings.displayMobNames
+    }
+
+    init {
+        this.entityType = entityType
+        this.factory = factory
+        mobName = clazz.simpleName
     }
 }

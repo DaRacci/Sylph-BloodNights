@@ -1,19 +1,29 @@
 package me.racci.bloodnight.config.worldsettings.mobsettings
 
-import de.eldoria.bloodnight.core.BloodNight
-import java.util.ArrayList
+import de.eldoria.eldoutilities.localization.ILocalizer
+import de.eldoria.eldoutilities.serialization.SerializationUtil
+import de.eldoria.eldoutilities.serialization.TypeResolvingMap
+import me.racci.bloodnight.core.BloodNight
+import org.bukkit.Bukkit
+import org.bukkit.configuration.serialization.ConfigurationSerializable
+import org.bukkit.configuration.serialization.SerializableAs
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataContainer
+import org.bukkit.persistence.PersistentDataType
 import java.util.regex.Pattern
 
-@Getter
+@Suppress("UNUSED", "DEPRECATION")
 @SerializableAs("bloodNightDrop")
 class Drop : ConfigurationSerializable {
-    private val item: ItemStack
-    private val weight: Int
+    val item: ItemStack
+        get() = field.clone()
+    val weight: Int
 
-    constructor(objectMap: Map<String?, Any?>?) {
+    constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        item = map.getValue<ItemStack>("item")
-        weight = map.getValue<Int>("weight")
+        item    = map.getValue("item")
+        weight  = map.getValue("weight")
     }
 
     constructor(item: ItemStack, weight: Int) {
@@ -21,12 +31,11 @@ class Drop : ConfigurationSerializable {
         this.weight = weight
     }
 
-    override fun serialize(): Map<String, Any> {
-        return SerializationUtil.newBuilder()
+    override fun serialize(): MutableMap<String, Any> =
+        SerializationUtil.newBuilder()
             .add("item", item)
             .add("weight", weight)
             .build()
-    }
 
     val weightedItem: ItemStack
         get() {
@@ -35,39 +44,36 @@ class Drop : ConfigurationSerializable {
             return newItem
         }
 
-    fun getItem(): ItemStack {
-        return item.clone()
-    }
-
     val itemWithLoreWeight: ItemStack
         get() {
             val itemMeta: ItemMeta =
-                if (item.hasItemMeta()) item.getItemMeta() else Bukkit.getItemFactory().getItemMeta(item.getType())
-            val lore: MutableList<String> = if (itemMeta.hasLore()) itemMeta.getLore() else ArrayList()
-            lore.add("§6Weight: " + getWeight())
-            itemMeta.setLore(lore)
+                if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
+            val lore: MutableList<String> = if (itemMeta.hasLore()) itemMeta.lore!! else ArrayList()
+            lore.add("§6Weight: $weight")
+            itemMeta.lore = lore
             val newItem: ItemStack = item.clone()
             newItem.setItemMeta(itemMeta)
             return newItem
         }
 
     companion object {
-        private val WEIGHT_KEY: NamespacedKey = BloodNight.getNamespacedKey("dropWeight")
-        fun fromItemStack(itemStack: ItemStack?): Drop? {
-            return if (itemStack == null) null else Drop(
+
+        private val WEIGHT_KEY = BloodNight.namespacedKey("dropWeight")
+
+        fun fromItemStack(itemStack: ItemStack) =
+            Drop(
                 removeWeight(itemStack),
                 getWeightFromItemStack(itemStack)
             )
-        }
 
         fun changeWeight(item: ItemStack, change: Int) {
             val currWeight = getWeightFromItemStack(item)
-            val newWeight = Math.min(Math.max(currWeight + change, 1), 100)
+            val newWeight = (currWeight + change).coerceAtLeast(1).coerceAtMost(100)
             setWeight(item, newWeight)
             val weight = regexWeight
             val itemMeta: ItemMeta =
-                if (item.hasItemMeta()) item.getItemMeta() else Bukkit.getItemFactory().getItemMeta(item.getType())
-            val lore: MutableList<String> = if (itemMeta.hasLore()) itemMeta.getLore() else ArrayList()
+                if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
+            val lore: MutableList<String> = if (itemMeta.hasLore()) itemMeta.lore!! else ArrayList()
             if (lore.isEmpty()) {
                 lore.add(getWeightString(newWeight))
             } else {
@@ -78,15 +84,15 @@ class Drop : ConfigurationSerializable {
                     lore.add(getWeightString(newWeight))
                 }
             }
-            itemMeta.setLore(lore)
+            itemMeta.lore = lore
             item.setItemMeta(itemMeta)
         }
 
         fun removeWeight(item: ItemStack): ItemStack {
             val weight = regexWeight
             val itemMeta: ItemMeta =
-                if (item.hasItemMeta()) item.getItemMeta() else Bukkit.getItemFactory().getItemMeta(item.getType())
-            val lore: List<String> = if (itemMeta.hasLore()) itemMeta.getLore() else ArrayList()
+                if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
+            val lore = if (itemMeta.hasLore()) itemMeta.lore!! else ArrayList()
             if (lore.isEmpty()) {
                 return item
             } else {
@@ -98,9 +104,9 @@ class Drop : ConfigurationSerializable {
                 }
             }
             val newItem: ItemStack = item.clone()
-            itemMeta.setLore(lore)
-            val container: PersistentDataContainer = itemMeta.getPersistentDataContainer()
-            if (container.has<Int, Int>(WEIGHT_KEY, PersistentDataType.INTEGER)) {
+            itemMeta.lore = lore
+            val container: PersistentDataContainer = itemMeta.persistentDataContainer
+            if (container.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
                 container.remove(WEIGHT_KEY)
             }
             newItem.setItemMeta(itemMeta)
@@ -110,37 +116,36 @@ class Drop : ConfigurationSerializable {
         fun getWeightFromItemStack(item: ItemStack): Int {
             setWeightIfNotSet(item, 1)
             val itemMeta: ItemMeta =
-                if (item.hasItemMeta()) item.getItemMeta() else Bukkit.getItemFactory().getItemMeta(item.getType())
-            val dataContainer: PersistentDataContainer = itemMeta.getPersistentDataContainer()
-            return dataContainer.get<Int, Int>(WEIGHT_KEY, PersistentDataType.INTEGER)
+                if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
+            val dataContainer: PersistentDataContainer = itemMeta.persistentDataContainer
+            return dataContainer[WEIGHT_KEY, PersistentDataType.INTEGER]!!
         }
 
         private val regexWeight: Pattern
-            private get() = Pattern.compile(
+            get() = Pattern.compile(
                 "§6" + ILocalizer.getPluginLocalizer(BloodNight::class.java)
                     .getMessage("drops.weight") + ":\\s([0-9]+?)"
             )
 
         private fun setWeight(item: ItemStack, weight: Int) {
             val itemMeta: ItemMeta =
-                if (item.hasItemMeta()) item.getItemMeta() else Bukkit.getItemFactory().getItemMeta(item.getType())
-            val dataContainer: PersistentDataContainer = itemMeta.getPersistentDataContainer()
-            dataContainer.set<Int, Int>(WEIGHT_KEY, PersistentDataType.INTEGER, weight)
-            item.setItemMeta(itemMeta)
+                if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
+            val dataContainer: PersistentDataContainer = itemMeta.persistentDataContainer
+            dataContainer[WEIGHT_KEY, PersistentDataType.INTEGER] = weight
+            item.itemMeta = itemMeta
         }
 
         private fun setWeightIfNotSet(item: ItemStack, weight: Int) {
             val itemMeta: ItemMeta =
-                if (item.hasItemMeta()) item.getItemMeta() else Bukkit.getItemFactory().getItemMeta(item.getType())
-            val dataContainer: PersistentDataContainer = itemMeta.getPersistentDataContainer()
-            if (!dataContainer.has<Int, Int>(WEIGHT_KEY, PersistentDataType.INTEGER)) {
+                if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
+            val dataContainer: PersistentDataContainer = itemMeta.persistentDataContainer
+            if (!dataContainer.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
                 setWeight(item, weight)
             }
         }
 
-        private fun getWeightString(weight: Int): String {
-            return "§6" + ILocalizer.getPluginLocalizer(BloodNight::class.java)
+        private fun getWeightString(weight: Int) =
+            "§6" + ILocalizer.getPluginLocalizer(BloodNight::class.java)
                 .getMessage("drops.weight") + ": " + weight
-        }
     }
 }

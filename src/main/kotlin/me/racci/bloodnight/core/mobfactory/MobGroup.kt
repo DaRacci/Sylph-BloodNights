@@ -1,34 +1,29 @@
-package me.racci.bloodnight.core.mobfactory;
+package me.racci.bloodnight.core.mobfactory
 
-import de.eldoria.bloodnight.specialmobs.SpecialMob;
-import lombok.Getter;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
+import me.racci.bloodnight.specialmobs.SpecialMob
+import org.bukkit.entity.Entity
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.LivingEntity
+import java.util.ArrayList
+import java.util.function.Function
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
+class MobGroup(entityType: EntityType) {
 
-public class MobGroup {
-    @Getter
-    private final EntityType entityType;
-    @Getter
-    private final List<MobFactory> factories = new ArrayList<>();
+    val entityType  : EntityType
+    val factories   : ArrayList<MobFactory> = ArrayList()
 
-    public MobGroup(EntityType entityType) {
-        this.entityType = entityType;
+    val baseClass: Class<out Entity>
+        get() = entityType.entityClass!!
+
+    fun registerFactory(factory: MobFactory) {
+        factories.add(factory)
     }
 
-    public Class<? extends Entity> getBaseClass() {
-        return entityType.getEntityClass();
+    fun registerFactory(clazz: Class<out SpecialMob<*>>, factory: Function<LivingEntity, SpecialMob<*>>) {
+        factories.add(MobFactory(entityType, clazz, factory))
     }
 
-    void registerFactory(MobFactory factory) {
-        factories.add(factory);
-    }
-
-    public void registerFactory(Class<? extends SpecialMob<?>> clazz, Function<LivingEntity, SpecialMob<?>> factory) {
-        factories.add(new MobFactory(entityType, clazz, factory));
+    init {
+        this.entityType = entityType
     }
 }

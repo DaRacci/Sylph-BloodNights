@@ -1,11 +1,10 @@
 package me.racci.bloodnight.config.worldsettings.deathactions
 
-import lombok.Getter
+import org.bukkit.configuration.serialization.SerializableAs
 
-@Getter
-@Setter
 @SerializableAs("bloodNightMobDeathActions")
 class MobDeathActions : DeathActions {
-    constructor(objectMap: Map<String?, Any?>?) : super(objectMap) {}
-    constructor() {}
+
+    constructor(objectMap: Map<String, Any>) : super(objectMap)
+    constructor()
 }

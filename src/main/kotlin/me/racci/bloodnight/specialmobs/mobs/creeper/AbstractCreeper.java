@@ -1,6 +1,7 @@
 package me.racci.bloodnight.specialmobs.mobs.creeper;
 
 import de.eldoria.bloodnight.specialmobs.SpecialMob;
+import me.racci.bloodnight.specialmobs.SpecialMob;
 import org.bukkit.entity.Creeper;
 
 public abstract class AbstractCreeper extends SpecialMob<Creeper> {

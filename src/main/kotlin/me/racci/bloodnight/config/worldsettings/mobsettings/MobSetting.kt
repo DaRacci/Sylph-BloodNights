@@ -1,93 +1,87 @@
 package me.racci.bloodnight.config.worldsettings.mobsettings
 
 import com.google.common.base.Objects
-import lombok.Getter
+import de.eldoria.eldoutilities.serialization.SerializationUtil
+import de.eldoria.eldoutilities.serialization.TypeResolvingMap
+import de.eldoria.eldoutilities.utils.EnumUtil
+import org.bukkit.configuration.serialization.ConfigurationSerializable
+import org.bukkit.configuration.serialization.SerializableAs
 import java.util.ArrayList
 
-@Getter
 @SerializableAs("bloodNightMobSetting")
 class MobSetting : ConfigurationSerializable {
     /**
      * plugin name of the mob
      */
-    private val mobName: String?
+    val mobName: String
 
     /**
      * The display name of the mob. Uses § as color code identifier.
      */
-    private var displayName: String? = null
+    var displayName: String? = null
+        set(displayName) {
+            field = displayName?.replace("&", "§")
+        }
 
     /**
      * Indicates if this mob can be spawned
      */
-    @Setter
-    private var active = true
+    var active = true
 
     /**
      * Amount of drops.
      */
-    @Setter
-    private var dropAmount = -1
+    var dropAmount = -1
 
     /**
-     * If this is true only drops from mobs are choosen and default drops will not drop. if false the drops will be
+     * If this is true only drops from mobs are chosen and default drops will not drop. if false the drops will be
      * added to default drops.
      */
-    @Setter
-    private var overrideDefaultDrops = false
+    var overrideDefaultDrops = false
 
-    @Setter
-    private var drops: List<Drop> = ArrayList()
+    var drops: List<Drop> = ArrayList()
 
-    @Setter
-    private var healthModifier = MobValueModifier.DEFAULT
+    var healthModifier = MobValueModifier.DEFAULT
 
     /**
-     * The max health of a mob. -1 is disabled
-     */
-    @Setter
-    private var health = 2.0
+    * The max health of a mob. -1 is disabled
+    */
+    var health = 2.0
 
-    @Setter
-    private var damageModifier = MobValueModifier.DEFAULT
+    var damageModifier = MobValueModifier.DEFAULT
 
     /**
      * The damage a mob makes. -1 is disabled
      */
-    @Setter
-    private var damage = 2.0
+    var damage = 2.0
 
-    constructor(objectMap: Map<String?, Any?>?) {
+    constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        mobName = map.getValue<String>("mobName")
-        if (mobName == null) {
-            throw NullPointerException("Mob name is null. This is not allowed")
-        }
-        setDisplayName(map.getValueOrDefault<String>("displayName", ""))
-        active = map.getValueOrDefault<Boolean>("active", active)
-        dropAmount = map.getValueOrDefault<Int>("dropAmount", dropAmount)
-        overrideDefaultDrops = map.getValueOrDefault<Boolean>("overrideDefaultDrops", overrideDefaultDrops)
-        drops = map.getValueOrDefault<List<Drop>>("drops", drops)
-        healthModifier = EnumUtil.parse<MobValueModifier>(
-            map.getValueOrDefault<String>("healthModifier", healthModifier.name),
+        mobName                 = map.getValue("mobName")
+        displayName             = map.getValueOrDefault("displayName", "")
+        active                  = map.getValueOrDefault("active", active)
+        dropAmount              = map.getValueOrDefault("dropAmount", dropAmount)
+        overrideDefaultDrops    = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops)
+        drops                   = map.getValueOrDefault("drops", drops)
+        healthModifier          = EnumUtil.parse(
+            map.getValueOrDefault("healthModifier", healthModifier.name),
             MobValueModifier::class.java
         )
-        health = map.getValueOrDefault<Double>("health", health)
-        damageModifier = EnumUtil.parse<MobValueModifier>(
-            map.getValueOrDefault<String>("damageModifier", damageModifier.name),
+        health                  = map.getValueOrDefault("health", health)
+        damageModifier          = EnumUtil.parse(
+            map.getValueOrDefault("damageModifier", damageModifier.name),
             MobValueModifier::class.java
         )
-        damage = map.getValueOrDefault<Double>("damage", damage)
+        damage                  = map.getValueOrDefault("damage", damage)
     }
 
-    constructor(mobName: String?) {
+    constructor(mobName: String) {
         this.mobName = mobName
         displayName = ""
     }
 
-    fun getOverridenDropAmount(dropAmount: Int): Int {
-        return if (this.dropAmount <= 0) dropAmount else this.dropAmount
-    }
+    fun getOverriddenDropAmount(dropAmount: Int) =
+        if (this.dropAmount <= 0) dropAmount else this.dropAmount
 
     override fun serialize(): Map<String, Any> {
         return SerializationUtil.newBuilder()
@@ -104,10 +98,10 @@ class MobSetting : ConfigurationSerializable {
             .build()
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as MobSetting
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as MobSetting
         return mobName.equals(that.mobName, ignoreCase = true)
     }
 
@@ -120,7 +114,6 @@ class MobSetting : ConfigurationSerializable {
             MobValueModifier.DEFAULT -> baseValue * defaultMultiplier
             MobValueModifier.MULTIPLY -> baseValue * damage
             MobValueModifier.VALUE -> damage
-            else -> throw IllegalStateException("Unexpected value: $damageModifier")
         }
     }
 
@@ -129,19 +122,6 @@ class MobSetting : ConfigurationSerializable {
             MobValueModifier.DEFAULT -> baseValue * defaultMultiplier
             MobValueModifier.MULTIPLY -> baseValue * health
             MobValueModifier.VALUE -> health
-            else -> throw IllegalStateException("Unexpected value: $healthModifier")
         }
-    }
-
-    /**
-     * Sets the display name.
-     *
-     *
-     * This will replace &amp; with §
-     *
-     * @param displayName display name to set.
-     */
-    fun setDisplayName(displayName: String) {
-        this.displayName = displayName.replace("&", "§")
     }
 }

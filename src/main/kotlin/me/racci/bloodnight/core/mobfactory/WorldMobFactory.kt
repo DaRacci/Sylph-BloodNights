@@ -1,51 +1,46 @@
-package me.racci.bloodnight.core.mobfactory;
+package me.racci.bloodnight.core.mobfactory
 
-import de.eldoria.bloodnight.config.worldsettings.WorldSettings;
-import de.eldoria.bloodnight.config.worldsettings.mobsettings.MobSetting;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
+import de.eldoria.bloodnight.config.worldsettings.WorldSettings
+import me.racci.bloodnight.config.worldsettings.WorldSettings
+import me.racci.bloodnight.config.worldsettings.mobsettings.MobSetting
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
+import java.util.*
+import java.util.concurrent.ThreadLocalRandom
+import java.util.function.Predicate
+import java.util.stream.Collectors
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
+class WorldMobFactory(settings: WorldSettings) {
 
-public class WorldMobFactory {
-    private final WorldSettings settings;
-    private final ThreadLocalRandom rand = ThreadLocalRandom.current();
+    private val settings: WorldSettings
+    private val rand: ThreadLocalRandom = ThreadLocalRandom.current()
 
-    public WorldMobFactory(WorldSettings settings) {
-        this.settings = settings;
-    }
-
-    public Optional<MobFactory> getRandomFactory(Entity entity) {
-        if (!(entity instanceof LivingEntity)) return Optional.empty();
+    fun getRandomFactory(entity: Entity): MobFactory? {
+        if (entity !is LivingEntity) return null
 
         // Get the group of the mob
-        Optional<MobGroup> optionalMobGroup = SpecialMobRegistry.getMobGroup(entity);
-
-        if (!optionalMobGroup.isPresent()) return Optional.empty();
-
-        MobGroup mobGroup = optionalMobGroup.get();
-
-        Set<MobSetting> settings = this.settings.getMobSettings().getMobTypes().getSettings();
+        val optionalMobGroup = SpecialMobRegistry.getMobGroup(entity) ?: return null
+        val mobGroup = optionalMobGroup.get()
+        val settings: Set<MobSetting> = settings.getMobSettings().getMobTypes().getSettings()
 
         // Search filter for factories with active mobs
-        List<MobFactory> allowedFactories = mobGroup.getFactories().stream()
-                .filter(factory -> settings.stream()
-                        // search for setting for factory
-                        .filter(setting -> setting.getMobName().equalsIgnoreCase(factory.getMobName()))
-                        // take first
-                        .findFirst()
-                        // draw active value or false
-                        .map(MobSetting::isActive)
-                        .orElse(false))
-                .collect(Collectors.toList());
-
-        if (allowedFactories.isEmpty()) return Optional.empty();
-
-        return Optional.of(allowedFactories.get(rand.nextInt(allowedFactories.size())));
+        val allowedFactories: List<MobFactory> = mobGroup.getFactories().stream()
+            .filter { factory ->
+                settings.stream() // search for setting for factory
+                    .filter(Predicate<MobSetting> { setting: MobSetting ->
+                        setting.getMobName().equalsIgnoreCase(factory.getMobName())
+                    }) // take first
+                    .findFirst() // draw active value or false
+                    .map<Any>(MobSetting::isActive)
+                    .orElse(false)
+            }
+            .collect(Collectors.toList())
+        return if (allowedFactories.isEmpty()) Optional.empty() else Optional.of(
+            allowedFactories[rand.nextInt(allowedFactories.size)]
+        )
     }
 
+    init {
+        this.settings = settings
+    }
 }

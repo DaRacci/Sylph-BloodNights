@@ -1,21 +1,24 @@
 package me.racci.bloodnight.config.worldsettings.deathactions
 
-import de.eldoria.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings
+import de.eldoria.eldoutilities.serialization.SerializationUtil
+import me.racci.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings
+import me.racci.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings
+import org.bukkit.configuration.serialization.ConfigurationSerializable
+import org.bukkit.configuration.serialization.SerializableAs
 
-@Getter
-@Setter
 @SerializableAs("bloodNightDeathActions")
 open class DeathActions : ConfigurationSerializable {
-    protected var lightningSettings: LightningSettings = LightningSettings()
-    protected var shockwaveSettings: ShockwaveSettings = ShockwaveSettings()
 
-    constructor(objectMap: Map<String?, Any?>?) {
-        val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        lightningSettings = map.getValueOrDefault("lightningSettings", lightningSettings)
-        shockwaveSettings = map.getValueOrDefault("shockwaveSettings", shockwaveSettings)
+    protected var lightningSettings = LightningSettings()
+    protected var shockwaveSettings = ShockwaveSettings()
+
+    constructor(objectMap: Map<String, Any>) {
+        val map             = SerializationUtil.mapOf(objectMap)
+        lightningSettings   = map.getValueOrDefault("lightningSettings", lightningSettings)
+        shockwaveSettings   = map.getValueOrDefault("shockwaveSettings", shockwaveSettings)
     }
 
-    constructor() {}
+    constructor()
 
     override fun serialize(): Map<String, Any> {
         return SerializationUtil.newBuilder()

@@ -1,6 +1,5 @@
 package me.racci.bloodnight.core
 
-import de.eldoria.bloodnight.api.IBloodNightAPI
 import de.eldoria.eldoutilities.bstats.EldoMetrics
 import de.eldoria.eldoutilities.bstats.charts.MultiLineChart
 import de.eldoria.eldoutilities.localization.ILocalizer
@@ -61,6 +60,9 @@ class BloodNight : EldoPlugin() {
         fun logger() =
             instance.logger
 
+        fun namespacedKey(string: String) =
+            NamespacedKey(instance, string.replace(" ", "_"))
+
     }
 
     override fun onPluginEnable(reload: Boolean) {
@@ -69,7 +71,7 @@ class BloodNight : EldoPlugin() {
             setLoggerLevel()
             configuration = Configuration(this)
             val localizer: ILocalizer = ILocalizer.create(this, "en_US")
-            val mobLocaleCodes: Map<String, String> = SpecialMobRegistry.getRegisteredMobs().stream()
+            val mobLocaleCodes: Map<String, String> = SpecialMobRegistry.registeredMobs.stream()
                 .map(MobFactory::getMobName)
                 .collect(
                     Collectors.toMap(
@@ -167,7 +169,7 @@ class BloodNight : EldoPlugin() {
             }))
             metrics.addCustomChart(MultiLineChart("mob_types", Callable<Map<String, Int>> {
                 val map: MutableMap<String, Int> = HashMap()
-                for (factory in SpecialMobRegistry.getRegisteredMobs()) {
+                for (factory in SpecialMobRegistry.registeredMobs) {
                     for (world in configuration.getWorldSettings().values()) {
                         if (!world.isEnabled()) continue
                         val mobByName: Optional<MobSetting> = world.getMobSettings().getMobByName(factory.getMobName())
