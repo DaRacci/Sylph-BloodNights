@@ -1,9 +1,12 @@
-package me.racci.bloodnight.hooks.worldmanager;
+package me.racci.bloodnight.hooks.worldmanager
 
-import org.bukkit.World;
+import org.bukkit.World
 
-public interface WorldManager {
-    public static WorldManager DEFAULT = World::getName;
+interface WorldManager {
 
-    String getAlias(World world);
+    fun getAlias(world: World): String
+
+    companion object {
+        val DEFAULT = World::getName
+    }
 }

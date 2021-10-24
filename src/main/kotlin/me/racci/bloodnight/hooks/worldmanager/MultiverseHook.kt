@@ -1,40 +1,29 @@
-package me.racci.bloodnight.hooks.worldmanager;
+package me.racci.bloodnight.hooks.worldmanager
 
-import com.onarandombox.MultiverseCore.MultiverseCore;
-import de.eldoria.bloodnight.hooks.AbstractHookService;
-import org.bukkit.World;
+import com.onarandombox.MultiverseCore.MultiverseCore
+import me.racci.bloodnight.hooks.AbstractHookService
+import org.bukkit.World
 
-public class MultiverseHook extends AbstractHookService<MultiverseCore> implements WorldManager {
-    private MultiverseCore plugin = null;
+class MultiverseHook : AbstractHookService<MultiverseCore>("Multiverse-Core"), WorldManager {
+    private var plugin: MultiverseCore? = null
 
-    public MultiverseHook() {
-        super("Multiverse-Core");
-    }
-
-    @Override
-    public MultiverseCore getHook() throws ClassNotFoundException {
-        if (plugin == null) {
-            plugin = MultiverseCore.getPlugin(MultiverseCore.class);
+    override val hook: MultiverseCore
+        get() {
+            if (plugin == null) {
+                plugin = MultiverseCore.getPlugin(MultiverseCore::class.java)
+            }
+            return plugin as MultiverseCore
         }
-        return plugin;
-    }
 
-    @Override
-    public void setup() {
+    override fun setup() {}
 
-    }
+    override fun shutdown() {}
 
-    @Override
-    public void shutdown() {
-
-    }
-
-    @Override
-    public String getAlias(World world) {
-        try {
-            return getHook().getMVWorldManager().getMVWorld(world).getAlias();
-        } catch (ClassNotFoundException e) {
-            return world.getName();
+    override fun getAlias(world: World): String {
+        return try {
+            hook.mvWorldManager.getMVWorld(world).alias
+        } catch (e: ClassNotFoundException) {
+            world.name
         }
     }
 }

@@ -1,33 +1,26 @@
-package me.racci.bloodnight.hooks.placeholderapi;
+package me.racci.bloodnight.hooks.placeholderapi
 
-import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.hooks.AbstractHookService;
-import me.clip.placeholderapi.PlaceholderAPIPlugin;
+import me.clip.placeholderapi.PlaceholderAPIPlugin
+import me.racci.bloodnight.core.BloodNight
+import me.racci.bloodnight.hooks.AbstractHookService
 
-public class PlaceholderAPIHook extends AbstractHookService<PlaceholderAPIPlugin> {
-    private Placeholders placeholders;
+class PlaceholderAPIHook : AbstractHookService<PlaceholderAPIPlugin>("PlaceholderAPI") {
 
-    public PlaceholderAPIHook() {
-        super("PlaceholderAPI");
+    private lateinit var placeholders: Placeholders
+
+    override val hook: PlaceholderAPIPlugin
+        get() = PlaceholderAPIPlugin.getInstance()
+
+    override fun setup() {
+        placeholders = Placeholders()
+        placeholders.register()
     }
 
-    @Override
-    public PlaceholderAPIPlugin getHook() throws ClassNotFoundException {
-        return PlaceholderAPIPlugin.getInstance();
-    }
-
-    @Override
-    public void setup() {
-        placeholders = new Placeholders();
-        placeholders.register();
-    }
-
-    @Override
-    public void shutdown() {
+    override fun shutdown() {
         try {
-            placeholders.unregister();
-        } catch (NoSuchMethodError e) {
-            BloodNight.logger().warning("You are using a legacy version of PlaceholderAPI. Please consider updating.");
+            placeholders.unregister()
+        } catch (e: NoSuchMethodError) {
+            BloodNight.logger().warning("You are using a legacy version of PlaceholderAPI. Please consider updating.")
         }
     }
 }

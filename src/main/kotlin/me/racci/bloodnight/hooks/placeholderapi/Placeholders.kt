@@ -1,137 +1,99 @@
-package me.racci.bloodnight.hooks.placeholderapi;
+package me.racci.bloodnight.hooks.placeholderapi
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.eldoutilities.utils.Parser;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
+import com.google.common.cache.CacheBuilder
+import de.eldoria.eldoutilities.utils.Parser
+import me.clip.placeholderapi.expansion.PlaceholderExpansion
+import me.racci.bloodnight.core.BloodNight
+import org.bukkit.Bukkit
+import org.bukkit.World
+import org.bukkit.entity.Player
+import java.util.*
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+class Placeholders : PlaceholderExpansion() {
 
-public class Placeholders extends PlaceholderExpansion {
+    private val probability = Pattern.compile("probability(?:_(?<offset>[0-9]))?")
+    private val worldActive = Pattern.compile("active_(?<world>.+)")
+    private val worldCache  = CacheBuilder.newBuilder()
+        .expireAfterWrite(500, TimeUnit.MILLISECONDS)
+        .build<String, String>()
 
-    private final Pattern probability = Pattern.compile("probability(?:_(?<offset>[0-9]))?");
-    private final Pattern worldActive = Pattern.compile("active_(?<world>.+)");
+    override fun getAuthor()        = BloodNight.instance.description.authors.joinToString(", ")
+    override fun getVersion()       = BloodNight.instance.description.version
+    override fun getIdentifier()    = "bloodnight"
 
-    private final Cache<String, String> worldCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(500, TimeUnit.MILLISECONDS)
-            .build();
+    override fun persist() = true
+    override fun canRegister() = true
 
-    @Override
-    @NotNull
-    public String getIdentifier() {
-        return "bloodnight";
+    override fun onPlaceholderRequest(player: Player?, params: String): String {
+        if (player == null) return retriveFromWorldCache(params) { calcWorldPlaceholder(params) }
+        val world: World = player.world
+        return retriveFromWorldCache(
+            world.name + "_" + params
+        ) { calcPlayerPlaceholder(params, world) }
     }
 
-    @Override
-    @NotNull
-    public String getAuthor() {
-        return String.join(", ", BloodNight.getInstance().getDescription().getAuthors());
-    }
-
-    @Override
-    @NotNull
-    public String getVersion() {
-        return BloodNight.getInstance().getDescription().getVersion();
-    }
-
-    @Override
-    public boolean persist() {
-        return true;
-    }
-
-    @Override
-    public boolean canRegister() {
-        return true;
-    }
-
-    @Override
-    public String onPlaceholderRequest(Player player, @NotNull String params) {
-        if (player == null) return retriveFromWorldCache(params, () -> calcWorldPlaceholder(params));
-
-        World world = player.getWorld();
-        return retriveFromWorldCache(world.getName() + "_" + params, () -> calcPlayerPlaceholder(params, world));
-    }
-
-    public String retriveFromWorldCache(String key, Callable<String> calc) {
+    fun retriveFromWorldCache(key: String, calc: Callable<String>): String {
         try {
-            return worldCache.get(key, calc);
-        } catch (ExecutionException e) {
-            BloodNight.logger().log(Level.WARNING, "Could not calc placeholder settings for " + key, e);
+            return worldCache[key, calc]
+        } catch (e: ExecutionException) {
+            BloodNight.logger().log(Level.WARNING, "Could not calc placeholder settings for $key", e)
         }
-        return "";
+        return ""
     }
 
-    @NotNull
-    private String calcWorldPlaceholder(@NotNull String params) {
-        Matcher matcher = worldActive.matcher(params);
-        if (matcher.find()) return worldActiveByString(matcher);
-        return "";
+    private fun calcWorldPlaceholder(params: String): String {
+        val matcher = worldActive.matcher(params)
+        return if (matcher.find()) worldActiveByString(matcher) else ""
     }
 
-    @NotNull
-    private String calcPlayerPlaceholder(@NotNull String params, @NotNull World world) {
-        Matcher matcher = worldActive.matcher(params);
-        if (matcher.find()) return worldActiveByString(matcher);
-
-        matcher = probability.matcher(params);
-        if (matcher.matches()) return probability(world, matcher);
-
-        if ("seconds_left".equalsIgnoreCase(params)) return secondsLeft(world);
-
-        if ("percent_left".equalsIgnoreCase(params)) return percentLeft(world);
-
-        if ("active".equalsIgnoreCase(params)) {
-            return active(world);
+    private fun calcPlayerPlaceholder(params: String, world: World): String {
+        var matcher = worldActive.matcher(params)
+        if (matcher.find()) return worldActiveByString(matcher)
+        matcher = probability.matcher(params)
+        if (matcher.matches()) return probability(world, matcher)
+        if ("seconds_left".equals(params, ignoreCase = true)) return secondsLeft(world)
+        if ("percent_left".equals(params, ignoreCase = true)) return percentLeft(world)
+        if ("active".equals(params, ignoreCase = true)) {
+            return active(world)
         }
-        BloodNight.logger().info("Could not calc placeholder settings for " + "bloodnight_" + params + ". No placeholder exists.");
-        return "";
+        BloodNight.logger().info("Could not calc placeholder settings for bloodnight_$params. No placeholder exists.")
+        return ""
     }
 
-    @NotNull
-    private String worldActiveByString(Matcher matcher) {
-        String worldName = matcher.group("world");
-        World targetWorld = Bukkit.getWorld(worldName);
-        if (targetWorld == null) return "Invalid world";
-        return active(targetWorld);
+    private fun worldActiveByString(matcher: Matcher): String {
+        val worldName = matcher.group("world")
+        val targetWorld: World = Bukkit.getWorld(worldName) ?: return "Invalid world"
+        return active(targetWorld)
     }
 
-    @NotNull
-    private String active(@NotNull World world) {
-        return String.valueOf(BloodNight.getBloodNightAPI().isBloodNightActive(world));
+    private fun active(world: World): String {
+        return java.lang.String.valueOf(BloodNight.bloodNightAPI.isBloodNightActive(world))
     }
 
-    @NotNull
-    private String probability(World world, Matcher matcher) {
-        String offsetGroup = Optional.ofNullable(matcher.group("offset")).orElse("1");
-        int offset = Parser.parseInt(offsetGroup).orElse(1);
-        return String.valueOf(BloodNight.getBloodNightAPI().nextProbability(world, offset));
+    private fun probability(world: World, matcher: Matcher): String {
+        val offsetGroup = Optional.ofNullable(matcher.group("offset")).orElse("1")
+        val offset = Parser.parseInt(offsetGroup).orElse(1)
+        return java.lang.String.valueOf(BloodNight.bloodNightAPI.nextProbability(world, offset))
     }
 
-    @NotNull
-    private String percentLeft(World world) {
-        if (!BloodNight.getBloodNightAPI().isBloodNightActive(world)) return "0";
-        return String.format("%.1f", BloodNight.getBloodNightAPI().getPercentleft(world));
+    private fun percentLeft(world: World): String {
+        return if (!BloodNight.bloodNightAPI.isBloodNightActive(world)) "0" else java.lang.String.format(
+            "%.1f",
+            BloodNight.bloodNightAPI.getPercentleft(world)
+        )
     }
 
-    @NotNull
-    private String secondsLeft(World world) {
-        if (!BloodNight.getBloodNightAPI().isBloodNightActive(world)) return "0:00";
-
-        int seconds = BloodNight.getBloodNightAPI().getSecondsLeft(world);
-        if (seconds > 3600) {
-            return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60);
-        }
-        return String.format("%02d:%02d", (seconds % 3600) / 60, seconds % 60);
+    private fun secondsLeft(world: World): String {
+        if (!BloodNight.bloodNightAPI.isBloodNightActive(world)) return "0:00"
+        val seconds: Int = BloodNight.bloodNightAPI.getSecondsLeft(world)
+        return if (seconds > 3600) {
+            String.format("%d:%02d:%02d", seconds / 3600, seconds % 3600 / 60, seconds % 60)
+        } else String.format("%02d:%02d", seconds % 3600 / 60, seconds % 60)
     }
 }

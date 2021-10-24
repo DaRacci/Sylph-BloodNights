@@ -1,26 +1,17 @@
-package me.racci.bloodnight.hooks;
+package me.racci.bloodnight.hooks
 
-import lombok.Getter;
-import org.bukkit.Bukkit;
+import org.bukkit.Bukkit
 
 /**
  * A hook for a plugin.
  *
  * @param <T> type of plugin hook.
- */
-public abstract class AbstractHookService<T> {
-    private final String name;
-
+</T> */
+abstract class AbstractHookService<T>(val name: String) {
     /**
      * True if the plugin of this hook is enabled.
      */
-    @Getter
-    private final boolean active;
-
-    public AbstractHookService(String name) {
-        this.name = name;
-        active = Bukkit.getPluginManager().isPluginEnabled(name);
-    }
+    val active: Boolean = Bukkit.getPluginManager().isPluginEnabled(name)
 
     /**
      * Get the Hook of the Plugin.
@@ -28,15 +19,17 @@ public abstract class AbstractHookService<T> {
      * @return hook instance.
      * @throws ClassNotFoundException when the plugin is not loaded.
      */
-    public abstract T getHook() throws ClassNotFoundException;
+    @get:Throws(ClassNotFoundException::class)
+    abstract val hook: T
 
     /**
      * Initialize the hook
      */
-    public abstract void setup();
+    abstract fun setup()
 
     /**
      * Shutdown the hook and stop any attached services.
      */
-    public abstract void shutdown();
+    abstract fun shutdown()
+
 }
