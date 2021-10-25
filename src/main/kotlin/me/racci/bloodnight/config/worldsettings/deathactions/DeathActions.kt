@@ -9,8 +9,8 @@ import org.bukkit.configuration.serialization.SerializableAs
 @SerializableAs("bloodNightDeathActions")
 open class DeathActions : ConfigurationSerializable {
 
-    protected var lightningSettings = LightningSettings()
-    protected var shockwaveSettings = ShockwaveSettings()
+    var lightningSettings = LightningSettings()
+    var shockwaveSettings = ShockwaveSettings()
 
     constructor(objectMap: Map<String, Any>) {
         val map             = SerializationUtil.mapOf(objectMap)

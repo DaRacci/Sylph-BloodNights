@@ -30,6 +30,7 @@ class BossBarSettings : ConfigurationSerializable {
     }
 
     constructor()
+
     constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
         enabled = map.getValue("enabled")

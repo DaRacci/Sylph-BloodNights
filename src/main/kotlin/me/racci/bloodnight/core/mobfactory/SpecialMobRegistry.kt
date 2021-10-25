@@ -1,10 +1,10 @@
 package me.racci.bloodnight.core.mobfactory
 
-import me.racci.bloodnight.core.mobfactory.SpecialMobRegistry.registerMob
 import me.racci.bloodnight.specialmobs.SpecialMob
 import me.racci.bloodnight.specialmobs.mobs.creeper.*
 import me.racci.bloodnight.specialmobs.mobs.enderman.FearfulEnderman
 import me.racci.bloodnight.specialmobs.mobs.enderman.ToxicEnderman
+import me.racci.bloodnight.specialmobs.mobs.events.*
 import me.racci.bloodnight.specialmobs.mobs.phantom.FearfulPhantom
 import me.racci.bloodnight.specialmobs.mobs.phantom.FirePhantom
 import me.racci.bloodnight.specialmobs.mobs.phantom.PhantomSoul
@@ -21,11 +21,10 @@ import me.racci.bloodnight.specialmobs.mobs.zombie.ArmoredZombie
 import me.racci.bloodnight.specialmobs.mobs.zombie.InvisibleZombie
 import me.racci.bloodnight.specialmobs.mobs.zombie.SpeedZombie
 import org.bukkit.entity.*
+import org.bukkit.entity.EntityType.*
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Function
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 object SpecialMobRegistry {
 
@@ -86,110 +85,146 @@ object SpecialMobRegistry {
         Initialize default mobs.
          */
         registerMob(
-            EntityType.CREEPER,
-            EnderCreeper::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> EnderCreeper(me.racci.bloodnight.core.mobfactory.e as Creeper?) })
+            CREEPER,
+            EnderCreeper::class.java
+        ) {EnderCreeper(it as Creeper)}
         registerMob(
-            EntityType.CREEPER,
-            GhostCreeper::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> GhostCreeper(me.racci.bloodnight.core.mobfactory.e as Creeper?) })
+            CREEPER,
+            GhostCreeper::class.java
+        ) {GhostCreeper(it as Creeper)}
         registerMob(
-            EntityType.CREEPER,
+            CREEPER,
             NervousPoweredCreeper::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> NervousPoweredCreeper(me.racci.bloodnight.core.mobfactory.e as Creeper?) })
+        ) {NervousPoweredCreeper(it as Creeper)}
         registerMob(
-            EntityType.CREEPER,
+            CREEPER,
             SpeedCreeper::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> SpeedCreeper(me.racci.bloodnight.core.mobfactory.e as Creeper?) })
+        ) {SpeedCreeper(it as Creeper)}
         registerMob(
-            EntityType.CREEPER,
+            CREEPER,
             ToxicCreeper::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> ToxicCreeper(me.racci.bloodnight.core.mobfactory.e as Creeper?) })
+        ) {ToxicCreeper(it as Creeper)}
         registerMob(
-            EntityType.CREEPER,
+            CREEPER,
             UnstableCreeper::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> UnstableCreeper(me.racci.bloodnight.core.mobfactory.e as Creeper?) })
+        ) {UnstableCreeper(it as Creeper)}
 
         // Enderman
         registerMob(
-            EntityType.ENDERMAN,
+            ENDERMAN,
             FearfulEnderman::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> FearfulEnderman(me.racci.bloodnight.core.mobfactory.e as Enderman?) })
         registerMob(
-            EntityType.ENDERMAN,
+            ENDERMAN,
             ToxicEnderman::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> ToxicEnderman(me.racci.bloodnight.core.mobfactory.e as Enderman?) })
 
         // Phantom
         registerMob(
-            EntityType.PHANTOM,
+            PHANTOM,
             FearfulPhantom::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> FearfulPhantom(me.racci.bloodnight.core.mobfactory.e as Phantom?) })
         registerMob(
-            EntityType.PHANTOM,
+            PHANTOM,
             FirePhantom::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> FirePhantom(me.racci.bloodnight.core.mobfactory.e as Phantom?) })
         registerMob(
-            EntityType.PHANTOM,
+            PHANTOM,
             PhantomSoul::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> PhantomSoul(me.racci.bloodnight.core.mobfactory.e as Phantom?) })
 
         // Rider
         registerMob(
-            EntityType.SPIDER,
+            SPIDER,
             BlazeRider::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> BlazeRider(me.racci.bloodnight.core.mobfactory.e as Spider?) })
         registerMob(
-            EntityType.SPIDER,
+            SPIDER,
             SpeedSkeletonRider::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> SpeedSkeletonRider(me.racci.bloodnight.core.mobfactory.e as Spider?) })
         registerMob(
-            EntityType.SPIDER,
+            SPIDER,
             WitherSkeletonRider::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> WitherSkeletonRider(me.racci.bloodnight.core.mobfactory.e as Spider?) })
 
         // Skeleton
         registerMob(
-            EntityType.SKELETON,
+            SKELETON,
             InvisibleSkeleton::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> InvisibleSkeleton(me.racci.bloodnight.core.mobfactory.e as Skeleton?) })
         registerMob(
-            EntityType.SKELETON,
+            SKELETON,
             MagicSkeleton::class.java,
             Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> MagicSkeleton(me.racci.bloodnight.core.mobfactory.e as Skeleton?) })
 
         // Slime
         registerMob(
-            EntityType.SLIME,
+            SLIME,
             ToxicSlime::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> ToxicSlime(me.racci.bloodnight.core.mobfactory.e as Slime?) })
+        ) {ToxicSlime(it as Slime)}
 
         // Witch
         registerMob(
-            EntityType.WITCH,
+            WITCH,
             FireWizard::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> FireWizard(me.racci.bloodnight.core.mobfactory.e as Witch?) })
+        ) {FireWizard(it as Witch)}
         registerMob(
-            EntityType.WITCH,
+            WITCH,
             ThunderWizard::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> ThunderWizard(me.racci.bloodnight.core.mobfactory.e as Witch?) })
+        ) {ThunderWizard(it as Witch)}
         registerMob(
-            EntityType.WITCH,
+            WITCH,
             WitherWizard::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> WitherWizard(me.racci.bloodnight.core.mobfactory.e as Witch?) })
+        ) {WitherWizard(it as Witch)}
 
         // Zombie
         registerMob(
-            EntityType.ZOMBIE,
+            ZOMBIE,
             ArmoredZombie::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> ArmoredZombie(me.racci.bloodnight.core.mobfactory.e as Zombie?) })
+        ) {ArmoredZombie(it as Zombie)}
         registerMob(
-            EntityType.ZOMBIE,
+            ZOMBIE,
             InvisibleZombie::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> InvisibleZombie(me.racci.bloodnight.core.mobfactory.e as Zombie?) })
+        ) {InvisibleZombie(it as Zombie)}
         registerMob(
-            EntityType.ZOMBIE,
+            ZOMBIE,
             SpeedZombie::class.java,
-            Function<LivingEntity?, SpecialMob<*>?> { e: LivingEntity? -> SpeedZombie(me.racci.bloodnight.core.mobfactory.e as Zombie?) })
+        ) {SpeedZombie(it as Zombie)}
+
+        /**
+         * HollowsEve2021 Mobs
+         */
+        registerMob(
+            ZOMBIE,
+            HollowAdventurer::class.java
+        ) {HollowAdventurer(it as Zombie)}
+        registerMob(
+            SKELETON,
+            HollowArcher::class.java
+        ) {HollowArcher(it as Skeleton)}
+        registerMob(
+            PHANTOM,
+            HollowHaunter::class.java
+        ) {HollowHaunter(it as Phantom)}
+        registerMob(
+            STRAY,
+            HollowRider::class.java
+        ) {HollowRider(it as Stray)}
+        registerMob(
+            HUSK,
+            HollowGoliath::class.java
+        ) {HollowGoliath(it as Husk)}
+        registerMob(
+            DROWNED,
+            HollowNecromancer::class.java
+        ) {HollowNecromancer(it as Drowned)}
+        registerMob(
+            SKELETON,
+            HollowThrall::class.java
+        ) {HollowThrall(it as Skeleton)}
+        registerMob(
+            WITHER_SKELETON,
+            HollowHarbinger::class.java
+        ) {HollowHarbinger(it as WitherSkeleton)}
     }
 }

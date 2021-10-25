@@ -6,6 +6,10 @@ import de.eldoria.eldoutilities.utils.ERandom
 import me.racci.bloodnight.config.worldsettings.deathactions.subsettings.LightningSettings
 import me.racci.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings
 import me.racci.bloodnight.core.BloodNight
+import me.racci.bloodnight.core.BloodNight.Companion.configuration
+import me.racci.bloodnight.core.manager.mobmanager.MobManager
+import me.racci.bloodnight.core.mobfactory.SpecialMobRegistry
+import me.racci.bloodnight.specialmobs.SpecialMobUtil.IS_MOB_EXTENSION
 import me.racci.bloodnight.specialmobs.effects.ParticleCloud
 import me.racci.bloodnight.specialmobs.effects.PotionCloud
 import me.racci.bloodnight.util.VectorUtil
@@ -21,17 +25,17 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.NumberConversions
 import org.bukkit.util.Vector
-import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Consumer
 import java.util.logging.Level
 import kotlin.math.abs
 
 object SpecialMobUtil {
-    private val IS_SPECIAL_MOB: NamespacedKey = BloodNight.getNamespacedKey("isSpecialMob")
-    private val IS_MOB_EXTENSION: NamespacedKey = BloodNight.getNamespacedKey("isMobExtension")
-    private val BASE_UUID: NamespacedKey = BloodNight.getNamespacedKey("baseUUID")
-    private val MOB_TYPE: NamespacedKey = BloodNight.getNamespacedKey("mobType")
+
+    val IS_SPECIAL_MOB: NamespacedKey = BloodNight.namespacedKey("isSpecialMob")
+    val IS_MOB_EXTENSION: NamespacedKey = BloodNight.namespacedKey("isMobExtension")
+    val BASE_UUID: NamespacedKey = BloodNight.namespacedKey("baseUUID")
+    val MOB_TYPE: NamespacedKey = BloodNight.namespacedKey("mobType")
 
     @Deprecated("")
     fun spawnLingeringPotionAt(location: Location, potionEffect: PotionEffect) {
@@ -193,6 +197,18 @@ object SpecialMobUtil {
         return carrier
     }
 
+    fun <T : Entity> spawnAndMount(carrier: Entity, riderClass: Class<out SpecialMob<*>>) : T {
+        val s = configuration.getWorldSettings(carrier.world).mobSettings
+        val f = SpecialMobRegistry.getMobFactoryByName(riderClass.simpleName)!!
+        val ms = s.getMobByName(f.mobName)!!
+        return carrier.world.spawn(carrier.location, f.entityType.entityClass!!) {
+            it.persistentDataContainer[MobManager.NO_TOUCH, PersistentDataType.BYTE] = 1.toByte()
+            carrier.addPassenger(it) ; tagExtension(it, carrier)
+            MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms)}, 1)
+        } as T
+
+    }
+
     /**
      * Spawns a new entity and tags it as special mob.
      *
@@ -201,10 +217,20 @@ object SpecialMobUtil {
      * @param <T>        type of the entity
      * @return spawned entity of type
     </T> */
-    fun <T : Entity> spawnAndTagEntity(location: Location, entityType: EntityType): T {
-        val entity = location.world.spawnEntity(location, entityType)
-        tagSpecialMob(entity)
-        return entity as T
+    fun <T : Entity> spawnAndTagEntity(location: Location, entityType: EntityType) =
+        location.world.spawn(location, entityType.entityClass!!) {
+            tagSpecialMob(it)
+        } as T
+
+    fun <T : Entity> spawnMinion(master: Entity, minionClass: Class<out SpecialMob<*>>, location: Location = master.location) : T {
+        val s = configuration.getWorldSettings(location.world).mobSettings
+        val f = SpecialMobRegistry.getMobFactoryByName(minionClass.simpleName)!!
+        val ms = s.getMobByName(f.mobName)!!
+        return location.world.spawn(location, f.entityType.entityClass!!) {
+            it.persistentDataContainer[MobManager.NO_TOUCH, PersistentDataType.BYTE] = 1.toByte()
+            MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms)}, 1)
+        } as T
+
     }
 
     /**
@@ -344,19 +370,19 @@ object SpecialMobUtil {
      * @param location location of shockwave
      */
     fun dispatchShockwave(settings: ShockwaveSettings, location: Location) {
-        if (settings.getShockwaveProbability() < ThreadLocalRandom.current().nextInt(101)
-            || settings.getShockwaveProbability() === 0
+        if (settings.shockwaveProbability < ThreadLocalRandom.current().nextInt(101)
+            || settings.shockwaveProbability == 0
         ) return
         val randomVector: Collection<Vector> = ERandom.getRandomVector(100)
         val world: World = location.world
         for (vector in randomVector) {
-            vector.multiply(settings.getShockwaveRange())
+            vector.multiply(settings.shockwaveRange)
             world.spawnParticle(
                 Particle.EXPLOSION_NORMAL, location, 0, vector.x, vector.y, vector.z,
-                settings.getShockwaveRange() / 100.0
+                settings.shockwaveRange / 100.0
             )
         }
-        for (entity in getEntitiesAround(location, settings.getShockwaveRange())) {
+        for (entity in getEntitiesAround(location, settings.shockwaveRange.toDouble())) {
             if (entity.location == location) continue
             val directionVector: Vector = VectorUtil.getDirectionVector(location, entity.location)
             val power: Double = settings.getPower(directionVector)
@@ -381,24 +407,20 @@ object SpecialMobUtil {
 
     fun dispatchLightning(settings: LightningSettings, location: Location) {
         if (location.world == null) return
-        if (settings.isDoLightning() && settings.getLightning() !== 0) {
-            if (ThreadLocalRandom.current().nextInt(101) <= settings.getLightning()) {
-                location.world.strikeLightningEffect(location.clone().add(0.0, 10.0, 0.0))
-                return
-            }
+        if (settings.doLightning && settings.lightning != 0 && ThreadLocalRandom.current().nextInt(101) <= settings.lightning) {
+            location.world.strikeLightningEffect(location.clone().add(0.0, 10.0, 0.0))
+            return
         }
-        if (settings.isDoThunder() && settings.getThunder() !== 0) {
-            if (ThreadLocalRandom.current().nextInt(101) <= settings.getThunder()) {
-                location.world.players.forEach(Consumer { p: Player ->
-                    p.playSound(
-                        p.location,
-                        Sound.ENTITY_LIGHTNING_BOLT_THUNDER,
-                        SoundCategory.WEATHER,
-                        1f,
-                        1f
-                    )
-                })
-            }
+        if (settings.doThunder && settings.thunder != 0 && ThreadLocalRandom.current().nextInt(101) <= settings.thunder) {
+            location.world.players.forEach(Consumer { p: Player ->
+                p.playSound(
+                    p.location,
+                    Sound.ENTITY_LIGHTNING_BOLT_THUNDER,
+                    SoundCategory.WEATHER,
+                    1f,
+                    1f
+                )
+            })
         }
     }
 

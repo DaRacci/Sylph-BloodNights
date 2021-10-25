@@ -4,7 +4,6 @@ import me.racci.bloodnight.specialmobs.SpecialMob
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
-import java.util.ArrayList
 import java.util.function.Function
 
 class MobGroup(entityType: EntityType) {

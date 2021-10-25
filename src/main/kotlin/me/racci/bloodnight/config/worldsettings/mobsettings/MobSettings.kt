@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom
 
 @SerializableAs("bloodNightMobSettings")
 class MobSettings : ConfigurationSerializable {
-    private var vanillaMobSettings = VanillaMobSettings()
+    var vanillaMobSettings = VanillaMobSettings() ; private set
 
     /**
      * Enabled or disables mob names for special mobs.

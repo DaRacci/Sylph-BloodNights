@@ -12,6 +12,7 @@ import org.bukkit.attribute.AttributeInstance
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import java.util.function.Function
+import kotlin.reflect.KClass
 
 class MobFactory(
     entityType: EntityType,

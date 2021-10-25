@@ -12,17 +12,14 @@ import java.nio.file.Paths
 import java.util.function.Function
 
 class Configuration(plugin: Plugin) : EldoConfig(plugin) {
-    private val worldSettings = HashMap<String, WorldSettings>()
-    private var generalSettings: GeneralSettings? = null
+    val worldSettings = HashMap<String, WorldSettings>()
+    lateinit var generalSettings: GeneralSettings
 
     fun getWorldSettings(key: World) =
         loadWorldSettings(key.name, false)
 
     fun getWorldSettings(key: String) =
         loadWorldSettings(key, false)
-
-    fun getWorldSettings() =
-        worldSettings
 
     override fun reloadConfigs() {
         BloodNight.logger().info("Loading config.")
@@ -37,7 +34,7 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
             migrateToV2()
             BloodNight.logger().info("§2Migration of config to v2 done.")
         }
-        generalSettings = mainConfig.config.getObject("generalSettings", GeneralSettings::class.java)
+        generalSettings = mainConfig.config.getObject("generalSettings", GeneralSettings::class.java)!!
         Bukkit.getWorlds().map(World::getName).forEach(::loadWorldSettings)
         save()
     }

@@ -85,7 +85,7 @@ class Placeholders : PlaceholderExpansion() {
     private fun percentLeft(world: World): String {
         return if (!BloodNight.bloodNightAPI.isBloodNightActive(world)) "0" else java.lang.String.format(
             "%.1f",
-            BloodNight.bloodNightAPI.getPercentleft(world)
+            BloodNight.bloodNightAPI.getPercentLeft(world)
         )
     }
 

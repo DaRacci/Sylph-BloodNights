@@ -7,6 +7,7 @@ import org.bukkit.potion.PotionEffectType
 
 @SerializableAs("bloodNightPlayerDeathActions")
 class PlayerDeathActions : DeathActions {
+
     var respawnEffects: HashMap<PotionEffectType, PotionEffectSettings> =
         object : HashMap<PotionEffectType, PotionEffectSettings>() {
             init {

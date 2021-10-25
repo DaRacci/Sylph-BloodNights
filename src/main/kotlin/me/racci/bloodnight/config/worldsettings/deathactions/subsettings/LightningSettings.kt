@@ -1,8 +1,6 @@
 package me.racci.bloodnight.config.worldsettings.deathactions.subsettings
 
-import de.eldoria.bloodnight.util.InvMenuUtil
 import de.eldoria.eldoutilities.serialization.SerializationUtil
-import de.eldoria.eldoutilities.serialization.TypeResolvingMap
 import me.racci.bloodnight.util.InvMenuUtil
 import org.bukkit.Bukkit
 import org.bukkit.Material
