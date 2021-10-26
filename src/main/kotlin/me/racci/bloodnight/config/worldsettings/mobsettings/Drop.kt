@@ -22,8 +22,8 @@ class Drop : ConfigurationSerializable {
 
     constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        item    = map.getValue("item")
-        weight  = map.getValue("weight")
+        item = map.getValue("item")
+        weight = map.getValue("weight")
     }
 
     constructor(item: ItemStack, weight: Int) {
@@ -52,7 +52,7 @@ class Drop : ConfigurationSerializable {
             lore.add("§6Weight: $weight")
             itemMeta.lore = lore
             val newItem: ItemStack = item.clone()
-            newItem.setItemMeta(itemMeta)
+            newItem.itemMeta = itemMeta
             return newItem
         }
 
@@ -66,7 +66,8 @@ class Drop : ConfigurationSerializable {
                 getWeightFromItemStack(itemStack)
             )
 
-        fun changeWeight(item: ItemStack, change: Int) {
+        fun changeWeight(item: ItemStack?, change: Int) {
+            if (item == null) return
             val currWeight = getWeightFromItemStack(item)
             val newWeight = (currWeight + change).coerceAtLeast(1).coerceAtMost(100)
             setWeight(item, newWeight)
@@ -85,10 +86,10 @@ class Drop : ConfigurationSerializable {
                 }
             }
             itemMeta.lore = lore
-            item.setItemMeta(itemMeta)
+            item.itemMeta = itemMeta
         }
 
-        fun removeWeight(item: ItemStack): ItemStack {
+        private fun removeWeight(item: ItemStack): ItemStack {
             val weight = regexWeight
             val itemMeta: ItemMeta =
                 if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)
@@ -109,11 +110,11 @@ class Drop : ConfigurationSerializable {
             if (container.has(WEIGHT_KEY, PersistentDataType.INTEGER)) {
                 container.remove(WEIGHT_KEY)
             }
-            newItem.setItemMeta(itemMeta)
+            newItem.itemMeta = itemMeta
             return newItem
         }
 
-        fun getWeightFromItemStack(item: ItemStack): Int {
+        private fun getWeightFromItemStack(item: ItemStack): Int {
             setWeightIfNotSet(item, 1)
             val itemMeta: ItemMeta =
                 if (item.hasItemMeta()) item.itemMeta else Bukkit.getItemFactory().getItemMeta(item.type)

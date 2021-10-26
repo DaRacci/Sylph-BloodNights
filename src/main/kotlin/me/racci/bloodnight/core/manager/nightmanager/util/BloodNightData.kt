@@ -13,8 +13,8 @@ import java.util.*
 
 class BloodNightData(val world: World, val bossBar: BossBar?) {
 
-    val playerSoundQueue        = PriorityQueue<PlayerSound>{obj,o-> obj.compareTo(o)}
-    val playerConsistencyMap    = HashMap<UUID, ConsistencyCache>()
+    private val playerSoundQueue = PriorityQueue<PlayerSound> { obj, o -> obj.compareTo(o) }
+    private val playerConsistencyMap = HashMap<UUID, ConsistencyCache>()
 
     fun addPlayer(player: Player) {
         bossBar?.addPlayer(player)
@@ -27,7 +27,7 @@ class BloodNightData(val world: World, val bossBar: BossBar?) {
         if (playerConsistencyMap.containsKey(player.uniqueId)) {
             playerConsistencyMap.remove(player.uniqueId)!!.revert(player)
         }
-        playerSoundQueue.removeIf{it.player.uniqueId === player.uniqueId }
+        playerSoundQueue.removeIf { it.player.uniqueId === player.uniqueId }
     }
 
     /**
@@ -38,11 +38,11 @@ class BloodNightData(val world: World, val bossBar: BossBar?) {
     fun playRandomSound(settings: SoundSettings) {
         if (playerSoundQueue.isEmpty()) return
         while (!playerSoundQueue.isEmpty() && playerSoundQueue.peek().isNext()) {
-            val sound       = playerSoundQueue.poll()
+            val sound = playerSoundQueue.poll()
             if (!sound.player.isOnline) continue
-            val player      = sound.player
-            val location    = player.location
-            val direction   = player.eyeLocation.toVector()
+            val player = sound.player
+            val location = player.location
+            val direction = player.eyeLocation.toVector()
             location.add(direction.multiply(-1))
             BloodNight.logger().config("Played random sound to " + sound.player.name)
             settings.playRandomSound(player, location)
@@ -56,7 +56,7 @@ class BloodNightData(val world: World, val bossBar: BossBar?) {
             Bukkit.getBossBar(this)?.removeAll()
             if (!Bukkit.removeBossBar(this)) BloodNight.logger().config("Could not remove boss bar $key")
         }
-        playerConsistencyMap.forEach {it.value.revert(Bukkit.getOfflinePlayer(it.key))}
+        playerConsistencyMap.forEach { it.value.revert(Bukkit.getOfflinePlayer(it.key)) }
     }
 
     class PlayerSound(val player: Player) : Comparable<PlayerSound> {

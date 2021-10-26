@@ -28,16 +28,16 @@ class LightningSettings : ConfigurationSerializable {
     var doThunder = true
 
     /**
-     * If no lighting is send a thunder sound can be played optionally.
+     * If no lighting is sent a thunder sound can be played optionally.
      */
     var thunder = 100
 
     constructor(objectMap: Map<String, Any>) {
-        val map         = SerializationUtil.mapOf(objectMap)
-        doLightning     = map.getValueOrDefault("doLightning", doLightning)
-        lightning       = map.getValueOrDefault("lightning", lightning)
-        doThunder       = map.getValueOrDefault("doThunder", doThunder)
-        thunder         = map.getValueOrDefault("thunder", thunder)
+        val map = SerializationUtil.mapOf(objectMap)
+        doLightning = map.getValueOrDefault("doLightning", doLightning)
+        lightning = map.getValueOrDefault("lightning", lightning)
+        doThunder = map.getValueOrDefault("doThunder", doThunder)
+        thunder = map.getValueOrDefault("thunder", thunder)
     }
 
     constructor()

@@ -8,8 +8,8 @@ import org.bukkit.potion.PotionEffectType
 @SerializableAs("bloodNightPotionEffectSettings")
 class PotionEffectSettings : ConfigurationSerializable {
 
-    var effectType: PotionEffectType    ; private set
-    var duration = 10                   ; private set
+    var effectType: PotionEffectType; private set
+    var duration = 10; private set
 
     constructor(effectType: PotionEffectType, duration: Int) {
         this.effectType = effectType
@@ -17,9 +17,9 @@ class PotionEffectSettings : ConfigurationSerializable {
     }
 
     constructor(objectMap: Map<String, Any>) {
-        val map         = SerializationUtil.mapOf(objectMap)
-        effectType      = map.getValue("effectType") {PotionEffectType.getByName(it)}!!
-        duration        = map.getValueOrDefault("duration", duration)
+        val map = SerializationUtil.mapOf(objectMap)
+        effectType = map.getValue("effectType") { PotionEffectType.getByName(it) }!!
+        duration = map.getValueOrDefault("duration", duration)
     }
 
     override fun serialize(): Map<String, Any> {

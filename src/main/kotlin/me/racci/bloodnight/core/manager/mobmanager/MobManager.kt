@@ -40,9 +40,9 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
 
     companion object {
 
-        var specialMobManager   : SpecialMobManager   = SpecialMobManager(nightManager, configuration)
-        var delayedActions      : DelayedActions      = DelayedActions.start(BloodNight.instance)
-        val worldFucktories                           = HashMap<String, WorldMobFactory>()
+        var specialMobManager: SpecialMobManager = SpecialMobManager(nightManager, configuration)
+        var delayedActions: DelayedActions = DelayedActions.start(BloodNight.instance)
+        val worldFucktories = HashMap<String, WorldMobFactory>()
 
         val NO_TOUCH: NamespacedKey = BloodNight.namespacedKey("notouch")
         val PICKED_UP: NamespacedKey = BloodNight.namespacedKey("pickedUp")
@@ -53,7 +53,7 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         BloodNight.instance.registerListener(specialMobManager)
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled= true)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onHollowsEveMobSpawn(event: CreatureSpawnEvent) {
         (event.entity as? Ageable)?.setAdult()
         event.entity.health = event.entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
@@ -65,14 +65,14 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onMobSpawn(event: CreatureSpawnEvent) {
         if (!nightManager.isBloodNightActive(event.entity.world)) return
-        if(event.spawnReason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
-            event.entity.persistentDataContainer[NO_TOUCH, PersistentDataType.BYTE] = 1.toByte() ; return
+        if (event.spawnReason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+            event.entity.persistentDataContainer[NO_TOUCH, PersistentDataType.BYTE] = 1.toByte(); return
         }
-        if(event.entity.persistentDataContainer.has(NO_TOUCH, PersistentDataType.BYTE)) return
+        if (event.entity.persistentDataContainer.has(NO_TOUCH, PersistentDataType.BYTE)) return
 
-        val world       = event.location.world
+        val world = event.location.world
         val mobSettings = configuration.getWorldSettings(world.name).mobSettings
-        val mobFactory  = getWorldMobFactory(world).getRandomFactory(event.entity) ?: return
+        val mobFactory = getWorldMobFactory(world).getRandomFactory(event.entity) ?: return
 
         if (mobSettings.spawnPercentage < random.nextInt(101)) return
 
@@ -81,7 +81,7 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
     }
 
     private fun getWorldMobFactory(world: World) =
-        worldFucktories.computeIfAbsent(world.name) {WorldMobFactory(configuration.getWorldSettings(it))}
+        worldFucktories.computeIfAbsent(world.name) { WorldMobFactory(configuration.getWorldSettings(it)) }
 
     /*
      * Handling of vanilla mobs damaging to players during a blood night
@@ -111,15 +111,17 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         if (!nightManager.isBloodNightActive(event.damager.world)) return
 
         val sender: ProjectileSender = ProjectileUtil.getProjectileSource(event.damager)
-        if((sender.isEntity && sender.entity !is Player)
-            || event.damager !is Player) return
+        if ((sender.isEntity && sender.entity !is Player)
+            || event.damager !is Player
+        ) return
         val oponent: Entity = event.entity as? Player ?: return
         val entityId = oponent.entityId
 
-        if(!(oponent is Monster || oponent is Boss)) return
-        if(SpecialMobUtil.isSpecialMob(oponent)) return
+        if (!(oponent is Monster || oponent is Boss)) return
+        if (SpecialMobUtil.isSpecialMob(oponent)) return
 
-        val vanillaMobSettings = configuration.getWorldSettings(oponent.location.world.name).mobSettings.vanillaMobSettings
+        val vanillaMobSettings =
+            configuration.getWorldSettings(oponent.location.world.name).mobSettings.vanillaMobSettings
         event.damage /= vanillaMobSettings.healthMultiplier
 
     }
@@ -130,26 +132,36 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         val player = event.entity.killer
 
         if (!(entity is Monster || entity is Boss)) return
-        if (!nightManager.isBloodNightActive(entity.world)) {event.drops.forEach(::removePickupTag) ; return}
+        if (!nightManager.isBloodNightActive(entity.world)) {
+            event.drops.forEach(::removePickupTag); return
+        }
         if (entity.persistentDataContainer.has(NO_TOUCH, PersistentDataType.BYTE)) return
 
         val worldSettings = configuration.getWorldSettings(entity.world)
         val shockwaveSettings = worldSettings.deathActionSettings.mobDeathActions.shockwaveSettings
         SpecialMobUtil.dispatchShockwave(shockwaveSettings, event.entity.location)
-        SpecialMobUtil.dispatchLightning(worldSettings.deathActionSettings.mobDeathActions.lightningSettings, event.entity.location)
+        SpecialMobUtil.dispatchLightning(
+            worldSettings.deathActionSettings.mobDeathActions.lightningSettings,
+            event.entity.location
+        )
 
         val mobSettings: MobSettings = worldSettings.mobSettings
         val vanillaMobSettings: VanillaMobSettings = mobSettings.vanillaMobSettings
         event.droppedExp *= mobSettings.experienceMultiplier.toInt()
 
-        if (player == null) {BloodNight.logger().fine("Entity ${entity.customName} was not killed by a player.") ; specialMobManager.remove(event.entity) ; return}
+        if (player == null) {
+            BloodNight.logger()
+                .fine("Entity ${entity.customName} was not killed by a player."); specialMobManager.remove(event.entity); return
+        }
 
-        if (SpecialMobUtil.isExtension(entity)) {BloodNight.logger().finer("Mob is extension. Ignore.") ; return}
+        if (SpecialMobUtil.isExtension(entity)) {
+            BloodNight.logger().finer("Mob is extension. Ignore."); return
+        }
 
         BloodNight.logger().fine("Entity " + entity.customName + " was killed by " + player.name)
         BloodNight.logger().fine("Attempt to drop items.")
 
-        if(SpecialMobUtil.isSpecialMob(entity)) {
+        if (SpecialMobUtil.isSpecialMob(entity)) {
             if (!mobSettings.naturalDrops) {
                 BloodNight.logger().fine("Natural Drops are disabled. Clear loot.")
                 event.drops.clear()
@@ -161,9 +173,9 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
                 }
             }
 
-            val specialMob  = SpecialMobUtil.getSpecialMobType(entity) ?: return
-            val mobByName   = mobSettings.getMobByName(specialMob) ?: return
-            val drops       = mobSettings.getDrops(mobByName)
+            val specialMob = SpecialMobUtil.getSpecialMobType(entity) ?: return
+            val mobByName = mobSettings.getMobByName(specialMob) ?: return
+            val drops = mobSettings.getDrops(mobByName)
             BloodNight.logger().finer("Added ${drops.size} drops to ${event.drops.size} drops.")
             event.drops.addAll(drops)
         } else {
@@ -171,11 +183,11 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
             when (dropMode) {
                 VanillaDropMode.VANILLA -> event.drops
                     .filterNot(::isPickedUp)
-                    .forEach{it.amount *= vanillaMobSettings.dropMultiplier.toInt()}
+                    .forEach { it.amount *= vanillaMobSettings.dropMultiplier.toInt() }
                 VanillaDropMode.COMBINE -> {
                     event.drops
                         .filterNot(::isPickedUp)
-                        .forEach{it.amount *= vanillaMobSettings.dropMultiplier.toInt()}
+                        .forEach { it.amount *= vanillaMobSettings.dropMultiplier.toInt() }
                     event.drops.addAll(mobSettings.getDrops(vanillaMobSettings.extraDrops))
                 }
                 VanillaDropMode.CUSTOM -> {
@@ -200,8 +212,8 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         val bloodNightActive: Boolean = nightManager.isBloodNightActive(event.location.world)
 
         if ((worldSettings.alwaysManageCreepers || bloodNightActive)
-            && !worldSettings.creeperBlockDamage)
-        {
+            && !worldSettings.creeperBlockDamage
+        ) {
             val size: Int = event.blockList().size
             event.blockList().clear()
             BloodNight.logger().finest("Explosion is canceled? ${event.isCancelled}")
@@ -213,10 +225,10 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
     @EventHandler
     private fun onChunkLoad(event: ChunkLoadEvent) {
         val worldMobs = specialMobManager.getWorldMobs(event.world)
-        event.chunk.entities.forEach{
+        event.chunk.entities.forEach {
             val remove = worldMobs.remove(it.uniqueId)
-            if(!SpecialMobUtil.isSpecialMob(it)) return
-            if(remove != null) remove.remove() else it.remove()
+            if (!SpecialMobUtil.isSpecialMob(it)) return
+            if (remove != null) remove.remove() else it.remove()
         }
         if (!configuration.generalSettings.beeFix) return
         val hives = AtomicInteger(0)
@@ -250,8 +262,9 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
                 false
             },
             { s ->
-                if(hives.get() != 0) {
-                    BloodNight.logger().fine("Checked ${hives.get()} Hive/s with ${entities.get()} Entities and removed ${s.processedElements} lost bees in ${s.time}ms.")
+                if (hives.get() != 0) {
+                    BloodNight.logger()
+                        .fine("Checked ${hives.get()} Hive/s with ${entities.get()} Entities and removed ${s.processedElements} lost bees in ${s.time}ms.")
                 }
             }).runTaskTimer(BloodNight.instance, 0, 1)
     }

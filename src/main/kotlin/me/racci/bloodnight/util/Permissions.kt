@@ -5,7 +5,7 @@ object Permissions {
     const val BASE = "bloodnight"
 
     object Admin {
-        const val ADMIN = "$BASE.admin"
+        private const val ADMIN = "$BASE.admin"
         const val SPAWN_MOB = "$ADMIN.spawnmob"
         const val RELOAD = "$ADMIN.reload"
         const val MANAGE_DEATH_ACTION = "$ADMIN.managedeathactions"
@@ -18,7 +18,7 @@ object Permissions {
     }
 
     object Bypass {
-        const val BYPASS = "$BASE.bypass"
+        private const val BYPASS = "$BASE.bypass"
         const val COMMAND_BLOCK = "$BYPASS.blockedcommands"
     }
 }

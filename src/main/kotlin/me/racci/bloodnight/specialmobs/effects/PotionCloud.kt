@@ -9,8 +9,7 @@ import org.bukkit.entity.EntityType
 import org.bukkit.potion.PotionData
 import org.bukkit.projectiles.ProjectileSource
 
-class PotionCloud(effectCloud: AreaEffectCloud) : ParticleCloud(effectCloud)
-{
+class PotionCloud(effectCloud: AreaEffectCloud) : ParticleCloud(effectCloud) {
     class Builder(entity: AreaEffectCloud) : ParticleCloud.Builder(entity) {
 
         fun setPotionType(potionType: PotionData): Builder {

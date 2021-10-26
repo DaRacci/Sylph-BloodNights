@@ -81,7 +81,7 @@ interface IBloodNightAPI {
      * Get the probability of the next night to become a blood night.
      *
      * @param world  world to check
-     * @param offset offset of nights. The next night has a offset of 1. The last night has a offset of 0.
+     * @param offset offset of nights. The next night has an offset of 1. The last night has an offset of 0.
      *
      * @return probability between 0 and 100. Where 100 is a guaranteed blood night.
      */

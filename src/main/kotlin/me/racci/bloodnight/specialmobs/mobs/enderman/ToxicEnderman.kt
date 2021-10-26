@@ -1,6 +1,5 @@
 package me.racci.bloodnight.specialmobs.mobs.enderman
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.effects.PotionCloud
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractEnderman
@@ -12,13 +11,13 @@ import org.bukkit.event.entity.EntityTeleportEvent
 import org.bukkit.potion.PotionData
 import org.bukkit.potion.PotionType
 
-class ToxicEnderman(enderman: Enderman?) : AbstractEnderman(enderman) {
+class ToxicEnderman(enderman: Enderman) : AbstractEnderman(enderman) {
     override fun tick() {
         super.tick()
         SpecialMobUtil.spawnParticlesAround(
-            getBaseEntity().getLocation(),
+            baseEntity.location,
             Particle.REDSTONE,
-            Particle.DustOptions(Color.GREEN, 2),
+            Particle.DustOptions(Color.GREEN, 2f),
             5
         )
     }
@@ -29,7 +28,7 @@ class ToxicEnderman(enderman: Enderman?) : AbstractEnderman(enderman) {
             .setPotionType(PotionData(PotionType.POISON, false, true))
             .ofColor(Color.GREEN)
             .setDuration(10)
-            .withRadius(4)
+            .withRadius(4f)
             .setRadiusPerTick(0.01f)
             .build()
     }

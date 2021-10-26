@@ -16,13 +16,13 @@ import kotlin.math.roundToInt
 
 class TimeManager(val configuration: Configuration, val nightManager: NightManager) : BukkitRunnable(), Listener {
 
-    var ignoreSkip = false
+    private var ignoreSkip = false
 
     /**
      * Map contains for every active world a boolean if it is currently night.
      */
-    val timeState   = HashMap<String, Boolean>()
-    val customTimes = HashMap<String, Double>()
+    private val timeState = HashMap<String, Boolean>()
+    private val customTimes = HashMap<String, Double>()
 
     @EventHandler
     fun onWorldLoad(event: WorldLoadEvent) {
@@ -30,7 +30,7 @@ class TimeManager(val configuration: Configuration, val nightManager: NightManag
     }
     // <--- Time consistency ---> //
     /**
-     * Recalulate time state for immediate impact
+     * Recalculate time state for immediate impact
      *
      * @param event time skip event
      */
@@ -42,7 +42,7 @@ class TimeManager(val configuration: Configuration, val nightManager: NightManag
         }
         customTimes.computeIfPresent(
             event.world.name
-        ) { _,v-> v + event.skipAmount}
+        ) { _, v -> v + event.skipAmount }
     }
 
     override fun run() {

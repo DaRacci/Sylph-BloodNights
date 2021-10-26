@@ -16,14 +16,15 @@ abstract class AbstractPhantom protected constructor(phantom: Phantom) : Special
     }
 }
 
-abstract class AbstractExtendedPhantom< T : Mob, U : Mob>(carrier: T, passenger: U) : ExtendedSpecialMob<T, U>(carrier, passenger, StatSource.CARRIER) {
+abstract class AbstractExtendedPhantom<T : Mob, U : Mob>(carrier: T, passenger: U) :
+    ExtendedSpecialMob<T, U>(carrier, passenger, StatSource.CARRIER) {
 
     override fun tick() {
-        if(!baseEntity.isValid || !passenger.isValid) remove()
+        if (!baseEntity.isValid || !passenger.isValid) remove()
     }
 
     override fun onExtensionDamage(event: EntityDamageEvent) {
-        if(event.cause == EntityDamageEvent.DamageCause.SUFFOCATION) event.isCancelled = true
+        if (event.cause == EntityDamageEvent.DamageCause.SUFFOCATION) event.isCancelled = true
     }
 
 }

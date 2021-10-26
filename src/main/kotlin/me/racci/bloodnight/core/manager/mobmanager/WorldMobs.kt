@@ -6,9 +6,9 @@ import java.util.*
 import java.util.function.Consumer
 
 class WorldMobs {
-    private val mobs        = HashMap<UUID, SpecialMob<*>>()
-    private val tickQueue   = ArrayDeque<SpecialMob<*>>()
-    private var entityTick  = 0.0
+    private val mobs = HashMap<UUID, SpecialMob<*>>()
+    private val tickQueue = ArrayDeque<SpecialMob<*>>()
+    private var entityTick = 0.0
 
     fun invokeIfPresent(entity: Entity, invoke: Consumer<SpecialMob<*>>) {
         invokeIfPresent(entity.uniqueId, invoke)
@@ -51,7 +51,7 @@ class WorldMobs {
     }
 
     /**
-     * Attemts to remove an entity from world mobs and the world.
+     * Attempts to remove an entity from world mobs and the world.
      *
      * @param key uid of entity
      * @return special mob if present.

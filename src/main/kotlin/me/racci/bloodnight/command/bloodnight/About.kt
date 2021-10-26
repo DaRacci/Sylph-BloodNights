@@ -1,29 +1,24 @@
-package me.racci.bloodnight.command.bloodnight;
+package me.racci.bloodnight.command.bloodnight
 
-import de.eldoria.eldoutilities.localization.Replacement;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.jetbrains.annotations.NotNull;
+import de.eldoria.eldoutilities.localization.Replacement
+import de.eldoria.eldoutilities.simplecommands.EldoCommand
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.plugin.Plugin
 
-public class About extends EldoCommand {
+class About(plugin: Plugin) : EldoCommand(plugin) {
 
-    public About(Plugin plugin) {
-        super(plugin);
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        PluginDescriptionFile descr = getPlugin().getDescription();
-        String info = localizer().getMessage("about",
-                Replacement.create("PLUGIN_NAME", "Blood Night").addFormatting('b'),
-                Replacement.create("AUTHORS", String.join(", ", descr.getAuthors())).addFormatting('b'),
-                Replacement.create("VERSION", descr.getVersion()).addFormatting('b'),
-                Replacement.create("WEBSITE", descr.getWebsite()).addFormatting('b'),
-                Replacement.create("DISCORD", "https://discord.gg/3bYny67").addFormatting('b'));
-        messageSender().sendMessage(sender, info);
-        return true;
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
+        val description = plugin.description
+        val info = localizer().getMessage(
+            "about",
+            Replacement.create("PLUGIN_NAME", "Blood Night").addFormatting('b'),
+            Replacement.create("AUTHORS", java.lang.String.join(", ", description.authors)).addFormatting('b'),
+            Replacement.create("VERSION", description.version).addFormatting('b'),
+            Replacement.create("WEBSITE", description.website).addFormatting('b'),
+            Replacement.create("DISCORD", "https://discord.gg/3bYny67").addFormatting('b')
+        )
+        messageSender().sendMessage(sender, info)
+        return true
     }
 }

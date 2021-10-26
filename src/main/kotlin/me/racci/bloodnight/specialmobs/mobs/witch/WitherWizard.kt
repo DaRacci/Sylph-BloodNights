@@ -1,22 +1,30 @@
 package me.racci.bloodnight.specialmobs.mobs.witch
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractWitch
+import org.bukkit.Material
 import org.bukkit.Particle
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.Witch
+import org.bukkit.entity.WitherSkull
+import org.bukkit.event.entity.ProjectileLaunchEvent
+import org.bukkit.inventory.EntityEquipment
+import org.bukkit.inventory.ItemStack
 
-class WitherWizard(witch: Witch?) : AbstractWitch(witch) {
-    fun tick() {
-        val equipment: EntityEquipment = getBaseEntity().getEquipment()
+class WitherWizard(witch: Witch) : AbstractWitch(witch) {
+
+    override fun tick() {
+        val equipment: EntityEquipment = baseEntity.equipment
         equipment.setItemInMainHand(ItemStack(Material.WITHER_SKELETON_SKULL))
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15)
+        SpecialMobUtil.spawnParticlesAround(baseEntity, Particle.SPELL_INSTANT, 15)
         if (canShoot(5)) {
-            SpecialMobUtil.launchProjectileOnTarget(getBaseEntity(), WitherSkull::class.java, 4)
+            SpecialMobUtil.launchProjectileOnTarget(baseEntity, WitherSkull::class.java, 4.0)
             shot()
         }
     }
 
-    fun onProjectileShoot(event: ProjectileLaunchEvent) {
-        if (event.getEntity().getType() == EntityType.WITHER_SKULL) return
-        event.setCancelled(true)
+    override fun onProjectileShoot(event: ProjectileLaunchEvent) {
+        if (event.entity.type == EntityType.WITHER_SKULL) return
+        event.isCancelled = true
     }
 }

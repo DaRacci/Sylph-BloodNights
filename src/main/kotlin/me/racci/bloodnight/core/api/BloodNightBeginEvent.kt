@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package me.racci.bloodnight.core.api
 
 import org.bukkit.World

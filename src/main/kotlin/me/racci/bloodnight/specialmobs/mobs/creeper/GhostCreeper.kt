@@ -1,6 +1,5 @@
 package me.racci.bloodnight.specialmobs.mobs.creeper
 
-import de.eldoria.bloodnight.core.BloodNight
 import de.eldoria.eldoutilities.container.Triple
 import de.eldoria.eldoutilities.crossversion.ServerVersion
 import me.racci.bloodnight.core.BloodNight
@@ -16,55 +15,57 @@ import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 
 class GhostCreeper(creeper: Creeper) : ExtendedSpecialMob<Vex, Creeper>(EntityType.VEX, creeper) {
+
     private var legacy = false
-    fun tick() {
+
+    override fun tick() {
         if (legacy) {
-            SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.INVISIBILITY, 4, false)
+            SpecialMobUtil.addPotionEffect(baseEntity, PotionEffectType.INVISIBILITY, 4, false)
         }
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.SPEED, 4, false)
+        SpecialMobUtil.addPotionEffect(baseEntity, PotionEffectType.SPEED, 4, false)
         super.tick()
     }
 
-    fun onDamage(event: EntityDamageEvent) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-            event.setCancelled(true)
+    override fun onDamage(event: EntityDamageEvent) {
+        if (event.cause == EntityDamageEvent.DamageCause.SUFFOCATION) {
+            event.isCancelled = true
             return
         }
         super.onDamage(event)
     }
 
-    fun onExtensionDamage(event: EntityDamageEvent) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.SUFFOCATION) {
-            event.setCancelled(true)
+    override fun onExtensionDamage(event: EntityDamageEvent) {
+        if (event.cause == EntityDamageEvent.DamageCause.SUFFOCATION) {
+            event.isCancelled = true
             return
         }
         super.onExtensionDamage(event)
     }
 
-    fun onExplosionEvent(event: EntityExplodeEvent?) {
-        getBaseEntity().remove()
+    override fun onExplosionEvent(event: EntityExplodeEvent) {
+        baseEntity.remove()
     }
 
     init {
         val optVersion: Optional<Triple<Int, Int, Int>> = ServerVersion.extractVersion()
-        // Entites can be invisible since 1.16.3. Hotfix for backwards compatibiliy to spigot 1.16.2
+        // Entities can be invisible since 1.16.3. Hotfix for backwards compatibility to spigot 1.16.2
         if (optVersion.isPresent) {
             val version = optVersion.get()
             if (version.second >= 16 && version.third > 2) {
-                getBaseEntity().setInvisible(true)
+                baseEntity.isInvisible = true
             } else {
                 legacy = true
             }
         } else {
             legacy = true
         }
-        getBaseEntity().setInvulnerable(true)
+        baseEntity.isInvulnerable = true
         object : BukkitRunnable() {
             override fun run() {
-                getBaseEntity().getEquipment().setItemInMainHand(null)
-                getBaseEntity().getEquipment().setItemInOffHand(null)
+                baseEntity.equipment.setItemInMainHand(null)
+                baseEntity.equipment.setItemInOffHand(null)
             }
-        }.runTaskLater(BloodNight.getInstance(), 2)
+        }.runTaskLater(BloodNight.instance, 2)
         //AttributeUtil.setAttributeValue(getBaseEntity(), Attribute.GENERIC_FLYING_SPEED, 100);
     }
 }

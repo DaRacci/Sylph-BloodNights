@@ -1,28 +1,35 @@
 package me.racci.bloodnight.specialmobs.mobs.skeleton
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractSkeleton
 import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Skeleton
+import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
+import java.util.concurrent.ThreadLocalRandom
 
-class MagicSkeleton(skeleton: Skeleton?) : AbstractSkeleton(skeleton) {
+class MagicSkeleton(skeleton: Skeleton) : AbstractSkeleton(skeleton) {
+
     private val rand: ThreadLocalRandom = ThreadLocalRandom.current()
-    fun tick() {
-        SpecialMobUtil.addPotionEffect(getBaseEntity(), PotionEffectType.NIGHT_VISION, 1, true)
+
+    override fun tick() {
+        SpecialMobUtil.addPotionEffect(baseEntity, PotionEffectType.NIGHT_VISION, 1, true)
     }
 
-    fun onProjectileHit(event: ProjectileHitEvent) {
-        val hitEntity: Entity = event.getHitEntity()
+    override fun onProjectileHit(event: ProjectileHitEvent) {
+        val hitEntity: Entity = event.hitEntity ?: return
         if (hitEntity is LivingEntity) {
-            (hitEntity as LivingEntity).addPotionEffect(randomEffect)
+            hitEntity.addPotionEffect(randomEffect)
         }
     }
 
     private val randomEffect: PotionEffect
-        private get() = EFFECTS[rand.nextInt(EFFECTS.size)]
+        get() = EFFECTS[rand.nextInt(EFFECTS.size)]
 
     companion object {
-        private val EFFECTS: Array<PotionEffect> = arrayOf<PotionEffect>(
+        private val EFFECTS: Array<PotionEffect> = arrayOf(
             PotionEffect(PotionEffectType.SLOW, 8 * 20, 1, true, true),
             PotionEffect(PotionEffectType.SLOW, 6 * 20, 2, true, true),
             PotionEffect(PotionEffectType.HARM, 2 * 20, 1, true, true),

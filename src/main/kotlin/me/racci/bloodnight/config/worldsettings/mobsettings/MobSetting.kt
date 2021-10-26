@@ -6,7 +6,6 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap
 import de.eldoria.eldoutilities.utils.EnumUtil
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.SerializableAs
-import java.util.ArrayList
 
 @SerializableAs("bloodNightMobSetting")
 class MobSetting : ConfigurationSerializable {
@@ -16,7 +15,7 @@ class MobSetting : ConfigurationSerializable {
     val mobName: String
 
     /**
-     * The display name of the mob. Uses § as color code identifier.
+     * The display name of the mob. Uses § as colour code identifier.
      */
     var displayName: String? = null
         set(displayName) {
@@ -44,8 +43,8 @@ class MobSetting : ConfigurationSerializable {
     var healthModifier = MobValueModifier.DEFAULT
 
     /**
-    * The max health of a mob. -1 is disabled
-    */
+     * The max health of a mob. -1 is disabled
+     */
     var health = 2.0
 
     var damageModifier = MobValueModifier.DEFAULT
@@ -57,22 +56,22 @@ class MobSetting : ConfigurationSerializable {
 
     constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        mobName                 = map.getValue("mobName")
-        displayName             = map.getValueOrDefault("displayName", "")
-        active                  = map.getValueOrDefault("active", active)
-        dropAmount              = map.getValueOrDefault("dropAmount", dropAmount)
-        overrideDefaultDrops    = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops)
-        drops                   = map.getValueOrDefault("drops", drops)
-        healthModifier          = EnumUtil.parse(
+        mobName = map.getValue("mobName")
+        displayName = map.getValueOrDefault("displayName", "")
+        active = map.getValueOrDefault("active", active)
+        dropAmount = map.getValueOrDefault("dropAmount", dropAmount)
+        overrideDefaultDrops = map.getValueOrDefault("overrideDefaultDrops", overrideDefaultDrops)
+        drops = map.getValueOrDefault("drops", drops)
+        healthModifier = EnumUtil.parse(
             map.getValueOrDefault("healthModifier", healthModifier.name),
             MobValueModifier::class.java
         )
-        health                  = map.getValueOrDefault("health", health)
-        damageModifier          = EnumUtil.parse(
+        health = map.getValueOrDefault("health", health)
+        damageModifier = EnumUtil.parse(
             map.getValueOrDefault("damageModifier", damageModifier.name),
             MobValueModifier::class.java
         )
-        damage                  = map.getValueOrDefault("damage", damage)
+        damage = map.getValueOrDefault("damage", damage)
     }
 
     constructor(mobName: String) {

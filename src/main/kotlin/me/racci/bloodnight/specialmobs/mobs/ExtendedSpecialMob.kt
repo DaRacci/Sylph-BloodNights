@@ -1,3 +1,5 @@
+@file:Suppress("KDocUnresolvedReference")
+
 package me.racci.bloodnight.specialmobs.mobs
 
 import de.eldoria.eldoutilities.utils.AttributeUtil
@@ -12,7 +14,18 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityTargetEvent
 
-abstract class ExtendedSpecialMob<T : Mob, U : Mob>(carrier: T, val passenger: U, statSource: StatSource) : SpecialMob<T>(carrier) {
+/**
+ * Create a new special mob from a carrier and passenger entity.
+ *
+ *
+ * [ExtendedSpecialMob.carrier] and [ExtendedSpecialMob.passenger] take precedence.
+ *
+ * @param carrier    carrier
+ * @param passenger  passenger
+ * @param statSource defines which of the both entity should provide the stats for the other entity
+ */
+abstract class ExtendedSpecialMob<T : Mob, U : Mob>(val carrier: T, val passenger: U, statSource: StatSource) :
+    SpecialMob<T>(carrier) {
 
     /**
      * Create a new extended special mob from a carrier with a passenger.
@@ -39,7 +52,7 @@ abstract class ExtendedSpecialMob<T : Mob, U : Mob>(carrier: T, val passenger: U
     )
 
     /**
-     * This method already kills the extention.
+     * This method already kills the extension.
      *
      *
      * {@inheritDoc}
@@ -51,7 +64,7 @@ abstract class ExtendedSpecialMob<T : Mob, U : Mob>(carrier: T, val passenger: U
     }
 
     /**
-     * This method already synchronises the target between carrier and extention.
+     * This method already synchronises the target between carrier and extension.
      *
      *
      * {@inheritDoc}
@@ -60,7 +73,7 @@ abstract class ExtendedSpecialMob<T : Mob, U : Mob>(carrier: T, val passenger: U
      */
     override fun onTargetEvent(event: EntityTargetEvent) {
         if (event.target == null) {
-            passenger.target = null ; return
+            passenger.target = null; return
         }
         if (event.target is LivingEntity) {
             passenger.target = event.target as LivingEntity
@@ -115,7 +128,7 @@ abstract class ExtendedSpecialMob<T : Mob, U : Mob>(carrier: T, val passenger: U
     }
 
     /**
-     * {@inheritDoc} The extended special mob is only valid when the base entity has an passenger and the passenger is
+     * {@inheritDoc} The extended special mob is only valid when the base entity has a passenger and the passenger is
      * valid as well.
      *
      * @return true when the base entity and passenger is valid and the base entity has a passenger.
@@ -123,16 +136,6 @@ abstract class ExtendedSpecialMob<T : Mob, U : Mob>(carrier: T, val passenger: U
     override val isValid: Boolean
         get() = super.isValid && passenger.isValid && baseEntity.passengers.isNotEmpty()
 
-    /**
-     * Create a new special mob from a carrier and passender entity.
-     *
-     *
-     * [ExtendedSpecialMob.ExtendedSpecialMob] and [ExtendedSpecialMob.ExtendedSpecialMob] take precendence.
-     *
-     * @param carrier    carrier
-     * @param passenger  passenger
-     * @param statSource defines which of the both entity should provide the stats for the other entity
-     */
     init {
         val source: Mob = if (statSource === StatSource.PASSENGER) passenger else carrier
         val target: Mob = if (statSource === StatSource.PASSENGER) carrier else passenger

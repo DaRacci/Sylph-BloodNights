@@ -16,7 +16,7 @@ class SoundSettings : ConfigurationSerializable {
     private var minInterval = 10
     private var maxInterval = 40
 
-    var channel: SoundCategory = SoundCategory.AMBIENT ; private set
+    private var channel: SoundCategory = SoundCategory.AMBIENT;
     private var startSounds: ArrayList<SoundEntry> = object : ArrayList<SoundEntry>() {
         init {
             for (sound in Sounds.START) {
@@ -41,13 +41,13 @@ class SoundSettings : ConfigurationSerializable {
 
     constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        minInterval     = map.getValueOrDefault("minInterval", minInterval)
-        maxInterval     = map.getValueOrDefault("maxInterval", maxInterval)
-        val channel     = map.getValueOrDefault("channel", channel.name)
-        this.channel    = EnumUtil.parse(channel, SoundCategory::class.java) ?: SoundCategory.AMBIENT
-        startSounds     = map.getValueOrDefault("startSounds", startSounds)
-        endSounds       = map.getValueOrDefault("endSounds", endSounds)
-        randomSounds    = map.getValueOrDefault("randomSounds", randomSounds)
+        minInterval = map.getValueOrDefault("minInterval", minInterval)
+        maxInterval = map.getValueOrDefault("maxInterval", maxInterval)
+        val channel = map.getValueOrDefault("channel", channel.name)
+        this.channel = EnumUtil.parse(channel, SoundCategory::class.java) ?: SoundCategory.AMBIENT
+        startSounds = map.getValueOrDefault("startSounds", startSounds)
+        endSounds = map.getValueOrDefault("endSounds", endSounds)
+        randomSounds = map.getValueOrDefault("randomSounds", randomSounds)
     }
 
     constructor()

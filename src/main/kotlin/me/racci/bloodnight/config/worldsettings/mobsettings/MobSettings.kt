@@ -7,12 +7,11 @@ import me.racci.bloodnight.core.mobfactory.SpecialMobRegistry
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.SerializableAs
 import org.bukkit.inventory.ItemStack
-import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 
 @SerializableAs("bloodNightMobSettings")
 class MobSettings : ConfigurationSerializable {
-    var vanillaMobSettings = VanillaMobSettings() ; private set
+    var vanillaMobSettings = VanillaMobSettings(); private set
 
     /**
      * Enabled or disables mob names for special mobs.
@@ -30,12 +29,12 @@ class MobSettings : ConfigurationSerializable {
     var healthModifier = 2.0
 
     /**
-     * The modifier which will be muliplied with the dropped exp of a monster.
+     * The modifier which will be multiplied with the dropped exp of a monster.
      */
     var experienceMultiplier = 4.0
 
     /**
-     * Sleep time will be set for every player when the nights starts and will be reset to earlier value when the night
+     * Sleep time will be set for every player when the nights start and will be reset to earlier value when the night
      * ends
      */
     var forcePhantoms = true
@@ -66,18 +65,18 @@ class MobSettings : ConfigurationSerializable {
     var mobTypes = MobTypes()
 
     constructor(objectMap: Map<String, Any>) {
-        val map                 = SerializationUtil.mapOf(objectMap)
-        vanillaMobSettings      = map.getValueOrDefault("vanillaMobSettings", vanillaMobSettings)
-        displayMobNames         = map.getValueOrDefault("displayMobNames", displayMobNames)
-        damageMultiplier        = map.getValueOrDefault("damageMultiplier", damageMultiplier)
-        healthModifier          = map.getValueOrDefault("healthMultiplier", healthModifier)
-        experienceMultiplier    = map.getValueOrDefault("experienceMultiplier", experienceMultiplier)
-        forcePhantoms           = map.getValueOrDefault("forcePhantoms", forcePhantoms)
-        spawnPercentage         = map.getValueOrDefault("spawnPercentage", spawnPercentage)
-        defaultDrops            = map.getValueOrDefault("drops", defaultDrops)
-        naturalDrops            = map.getValueOrDefault("naturalDrops", naturalDrops)
-        dropAmount              = map.getValueOrDefault("dropAmount", dropAmount)
-        mobTypes                = map.getValueOrDefault("mobTypes", mobTypes)
+        val map = SerializationUtil.mapOf(objectMap)
+        vanillaMobSettings = map.getValueOrDefault("vanillaMobSettings", vanillaMobSettings)
+        displayMobNames = map.getValueOrDefault("displayMobNames", displayMobNames)
+        damageMultiplier = map.getValueOrDefault("damageMultiplier", damageMultiplier)
+        healthModifier = map.getValueOrDefault("healthMultiplier", healthModifier)
+        experienceMultiplier = map.getValueOrDefault("experienceMultiplier", experienceMultiplier)
+        forcePhantoms = map.getValueOrDefault("forcePhantoms", forcePhantoms)
+        spawnPercentage = map.getValueOrDefault("spawnPercentage", spawnPercentage)
+        defaultDrops = map.getValueOrDefault("drops", defaultDrops)
+        naturalDrops = map.getValueOrDefault("naturalDrops", naturalDrops)
+        dropAmount = map.getValueOrDefault("dropAmount", dropAmount)
+        mobTypes = map.getValueOrDefault("mobTypes", mobTypes)
     }
 
     constructor()
@@ -126,12 +125,12 @@ class MobSettings : ConfigurationSerializable {
      * @param minDrops   the min amount of drops
      * @return item stack list of length between 1 and drop amount
      */
-    fun getDrops(totalDrops: List<Drop>, minDrops: Int, dropAmount: Int): List<ItemStack> {
-        if (dropAmount == 0) return ArrayList<ItemStack>()
+    private fun getDrops(totalDrops: List<Drop>, minDrops: Int, dropAmount: Int): List<ItemStack> {
+        if (dropAmount == 0) return ArrayList()
         val totalWeight = totalDrops.stream().mapToInt(Drop::weight).sum()
         val current: ThreadLocalRandom = ThreadLocalRandom.current()
         val nextInt: Int = current.nextInt(minDrops, dropAmount + 1)
-        val result: MutableList<ItemStack> = ArrayList<ItemStack>()
+        val result: MutableList<ItemStack> = ArrayList()
         var currentWeight = 0
         for (i in 0 until nextInt) {
             val goal: Int = current.nextInt(totalWeight + 1)
@@ -146,8 +145,8 @@ class MobSettings : ConfigurationSerializable {
     }
 
     fun getMobByName(string: String): MobSetting? {
-        val mobFactoryByName    = SpecialMobRegistry.getMobFactoryByName(string) ?: return null
-        val name                = mobFactoryByName.entityType.entityClass?.simpleName
+        val mobFactoryByName = SpecialMobRegistry.getMobFactoryByName(string) ?: return null
+        val name = mobFactoryByName.entityType.entityClass?.simpleName
         for (entry in mobTypes.mobSettings.getOrDefault(name, emptySet())) {
             if (string.equals(entry.mobName, ignoreCase = true)) {
                 return entry
@@ -166,8 +165,9 @@ class MobSettings : ConfigurationSerializable {
         constructor() {
             mobSettings = SpecialMobRegistry.mobGroups.entries.associate { map ->
                 map.key.simpleName to object : HashSet<MobSetting>() {init {
-                    map.value.factories.map(MobFactory::mobName).forEach{add(MobSetting(it))}
-                }}
+                    map.value.factories.map(MobFactory::mobName).forEach { add(MobSetting(it)) }
+                }
+                }
             } as HashMap<String, HashSet<MobSetting>>
             // Old Method
 //            mobSettings = SpecialMobRegistry.mobGroups.entries.stream()
@@ -180,18 +180,18 @@ class MobSettings : ConfigurationSerializable {
         }
 
         constructor(objectMap: Map<String, Any>) {
-            val map         = SerializationUtil.mapOf(objectMap)
+            val map = SerializationUtil.mapOf(objectMap)
             SpecialMobRegistry.mobGroups.entries.forEach {
-                val ms      = mobSettings.computeIfAbsent(it.key.simpleName) {HashSet()}
-                val value   = map.getValueOrDefault(it.key.simpleName, ArrayList<MobSetting>())
+                val ms = mobSettings.computeIfAbsent(it.key.simpleName) { HashSet() }
+                val value = map.getValueOrDefault(it.key.simpleName, ArrayList<MobSetting>())
                 it.value.factories.forEach { f ->
                     var found = false
-                    value.first{ msv ->
-                        if(msv.mobName.equals(f.mobName, true)) {
-                            ms.add(msv) ; found = true ; true
+                    value.first { msv ->
+                        if (msv.mobName.equals(f.mobName, true)) {
+                            ms.add(msv); found = true; true
                         } else false
                     }
-                    if(!found) {
+                    if (!found) {
                         ms.add(MobSetting(f.mobName))
                         BloodNight.logger().info("No settings for ${f.mobName} found. Creating default settings.")
                     }
@@ -201,21 +201,22 @@ class MobSettings : ConfigurationSerializable {
 
         override fun serialize(): MutableMap<String, Any> =
             SerializationUtil.newBuilder().apply {
-                mobSettings.forEach{add(it.key, ArrayList(it.value))}
+                mobSettings.forEach { add(it.key, ArrayList(it.value)) }
             }.build()
 
         /**
-         * Returns a optional of a mob group.
+         * Returns an optional of a mob group.
          *
          * @param groupName name of group
          * @return optional result set. Key represents the mob group and value a set of mob settings.
          */
         fun getGroup(groupName: String) =
-            mobSettings.entries.firstOrNull{it.key.equals(groupName, true)}
+            mobSettings.entries.firstOrNull { it.key.equals(groupName, true) }
 
         val settings: Set<MobSetting>
-            get() = object : HashSet<MobSetting>() {init{
-                    mobSettings.values.forEach(::addAll)
-                }}
+            get() = object : HashSet<MobSetting>() {init {
+                mobSettings.values.forEach(::addAll)
+            }
+            }
     }
 }

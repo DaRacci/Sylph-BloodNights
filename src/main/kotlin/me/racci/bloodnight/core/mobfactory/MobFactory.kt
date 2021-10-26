@@ -12,14 +12,13 @@ import org.bukkit.attribute.AttributeInstance
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import java.util.function.Function
-import kotlin.reflect.KClass
 
 class MobFactory(
     entityType: EntityType,
     clazz: Class<out SpecialMob<*>>,
     factory: Function<LivingEntity, SpecialMob<*>>
 ) {
-    val factory: Function<LivingEntity, SpecialMob<*>>
+    private val factory: Function<LivingEntity, SpecialMob<*>>
     val mobName: String
     val entityType: EntityType
 

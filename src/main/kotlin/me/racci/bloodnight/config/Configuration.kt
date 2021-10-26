@@ -12,6 +12,7 @@ import java.nio.file.Paths
 import java.util.function.Function
 
 class Configuration(plugin: Plugin) : EldoConfig(plugin) {
+
     val worldSettings = HashMap<String, WorldSettings>()
     lateinit var generalSettings: GeneralSettings
 
@@ -54,12 +55,14 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
         val worldList =
             mainConfig.config["worldSettings", ArrayList<WorldSettings>()] as? ArrayList<WorldSettings> ?: ArrayList()
         val worldSettings = Paths.get(plugin.dataFolder.toPath().toString(), "worldSettings")
-        worldList.forEach{loadConfig(
-            getWorldConfigPath(it.worldName),
-            { s: FileConfiguration ->
-                s["version"] = 1
-                s["settings"] = it
-            }, true) ; BloodNight.logger().info("§2Migrated settings for ${it.worldName}")
+        worldList.forEach {
+            loadConfig(
+                getWorldConfigPath(it.worldName),
+                { s: FileConfiguration ->
+                    s["version"] = 1
+                    s["settings"] = it
+                }, true
+            ); BloodNight.logger().info("§2Migrated settings for ${it.worldName}")
 
         }
         mainConfig.config["worldSettings"] = null
@@ -67,7 +70,7 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
 
     // Make sure using true as default is ok
     private fun loadWorldSettings(world: String, reload: Boolean = true): WorldSettings {
-        return if(reload) {
+        return if (reload) {
             worldSettings.compute(world) { _, _ ->
                 val config = loadConfig(getWorldConfigPath(world), { c ->
                     c["version"] = 1
@@ -79,7 +82,7 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
                 val config = loadConfig(getWorldConfigPath(world), { c ->
                     c["version"] = 1
                     c["settings"] = WorldSettings(world)
-                }, false) ; config.getObject("settings", WorldSettings::class.java, WorldSettings(world))
+                }, false); config.getObject("settings", WorldSettings::class.java, WorldSettings(world))
             })
         }
     }
@@ -87,9 +90,11 @@ class Configuration(plugin: Plugin) : EldoConfig(plugin) {
     override fun saveConfigs() {
         mainConfig.config.set("generalSettings", generalSettings)
         worldSettings.entries
-            .forEach{loadConfig(getWorldConfigPath(it.key), null, false).apply {
-                this["settings"] = it.value
-            }}
+            .forEach {
+                loadConfig(getWorldConfigPath(it.key), null, false).apply {
+                    this["settings"] = it.value
+                }
+            }
         BloodNight.logger().config("Saved config.")
     }
 

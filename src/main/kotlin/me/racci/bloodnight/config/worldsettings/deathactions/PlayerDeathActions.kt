@@ -30,11 +30,13 @@ class PlayerDeathActions : DeathActions {
     var loseExpProbability = 0
 
     constructor(objectMap: Map<String, Any>) : super(objectMap) {
-        val map             = SerializationUtil.mapOf(objectMap)
-        deathCommands       = map.getValueOrDefault("deathCommands", deathCommands)
-        loseInvProbability  = map.getValueOrDefault("loseInvProbability", loseInvProbability)
-        loseExpProbability  = map.getValueOrDefault("loseExpProbability", loseExpProbability)
-        respawnEffects      = map.getMap<PotionEffectType, PotionEffectSettings>("respawnEffects") {it,_->PotionEffectType.getByName(it)!!} as HashMap
+        val map = SerializationUtil.mapOf(objectMap)
+        deathCommands = map.getValueOrDefault("deathCommands", deathCommands)
+        loseInvProbability = map.getValueOrDefault("loseInvProbability", loseInvProbability)
+        loseExpProbability = map.getValueOrDefault("loseExpProbability", loseExpProbability)
+        respawnEffects = map.getMap<PotionEffectType, PotionEffectSettings>("respawnEffects") { it, _ ->
+            PotionEffectType.getByName(it)!!
+        } as HashMap
     }
 
     constructor()
@@ -44,7 +46,7 @@ class PlayerDeathActions : DeathActions {
             .add("deathCommands", deathCommands)
             .add("loseInvProbability", loseInvProbability)
             .add("loseExpProbability", loseExpProbability)
-            .addMap("respawnEffects", respawnEffects) {it,_->it.name}
+            .addMap("respawnEffects", respawnEffects) { it, _ -> it.name }
             .build()
     }
 }

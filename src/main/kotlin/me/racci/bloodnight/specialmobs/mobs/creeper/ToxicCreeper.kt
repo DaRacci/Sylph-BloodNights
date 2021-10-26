@@ -1,18 +1,27 @@
 package me.racci.bloodnight.specialmobs.mobs.creeper
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.effects.PotionCloud
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractCreeper
 import org.bukkit.Color
 import org.bukkit.Particle
+import org.bukkit.entity.Creeper
+import org.bukkit.event.entity.EntityExplodeEvent
+import org.bukkit.potion.PotionData
+import org.bukkit.potion.PotionType
 
-class ToxicCreeper(creeper: Creeper?) : AbstractCreeper(creeper) {
+class ToxicCreeper(creeper: Creeper) : AbstractCreeper(creeper) {
+
     override fun tick() {
-        SpecialMobUtil.spawnParticlesAround(baseEntity.location, Particle.REDSTONE, DustOptions(Color.GREEN, 2), 5)
+        SpecialMobUtil.spawnParticlesAround(
+            baseEntity.location, Particle.REDSTONE,
+            Particle.DustOptions(Color.GREEN, 2f), 5
+        )
     }
 
     override fun onExplosionEvent(event: EntityExplodeEvent) {
-        PotionCloud.builder(event.getLocation().subtract(0.0, 1.0, 0.0))
-            .fromSource(event.getEntity() as Creeper)
+        PotionCloud.builder(event.location.subtract(0.0, 1.0, 0.0))
+            .fromSource(event.entity as Creeper)
             .setDuration(10)
             .setRadiusPerTick(0.01f)
             .ofColor(Color.GREEN)

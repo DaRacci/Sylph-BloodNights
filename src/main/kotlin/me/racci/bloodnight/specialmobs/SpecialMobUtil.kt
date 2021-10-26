@@ -1,3 +1,5 @@
+@file:Suppress("DeprecatedCallableAddReplaceWith")
+
 package me.racci.bloodnight.specialmobs
 
 import de.eldoria.eldoutilities.serialization.TypeConversion
@@ -9,7 +11,6 @@ import me.racci.bloodnight.core.BloodNight
 import me.racci.bloodnight.core.BloodNight.Companion.configuration
 import me.racci.bloodnight.core.manager.mobmanager.MobManager
 import me.racci.bloodnight.core.mobfactory.SpecialMobRegistry
-import me.racci.bloodnight.specialmobs.SpecialMobUtil.IS_MOB_EXTENSION
 import me.racci.bloodnight.specialmobs.effects.ParticleCloud
 import me.racci.bloodnight.specialmobs.effects.PotionCloud
 import me.racci.bloodnight.util.VectorUtil
@@ -25,6 +26,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.NumberConversions
 import org.bukkit.util.Vector
+import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import java.util.function.Consumer
 import java.util.logging.Level
@@ -32,10 +34,10 @@ import kotlin.math.abs
 
 object SpecialMobUtil {
 
-    val IS_SPECIAL_MOB: NamespacedKey = BloodNight.namespacedKey("isSpecialMob")
-    val IS_MOB_EXTENSION: NamespacedKey = BloodNight.namespacedKey("isMobExtension")
-    val BASE_UUID: NamespacedKey = BloodNight.namespacedKey("baseUUID")
-    val MOB_TYPE: NamespacedKey = BloodNight.namespacedKey("mobType")
+    private val IS_SPECIAL_MOB: NamespacedKey = BloodNight.namespacedKey("isSpecialMob")
+    private val IS_MOB_EXTENSION: NamespacedKey = BloodNight.namespacedKey("isMobExtension")
+    private val BASE_UUID: NamespacedKey = BloodNight.namespacedKey("baseUUID")
+    private val MOB_TYPE: NamespacedKey = BloodNight.namespacedKey("mobType")
 
     @Deprecated("")
     fun spawnLingeringPotionAt(location: Location, potionEffect: PotionEffect) {
@@ -47,7 +49,7 @@ object SpecialMobUtil {
         val potion = ItemStack(potionType)
         val potionMeta: PotionMeta = potion.itemMeta as PotionMeta
         potionMeta.addCustomEffect(potionEffect, false)
-        potion.setItemMeta(potionMeta)
+        potion.itemMeta = potionMeta
         val entity: LivingEntity =
             location.world.spawnEntity(location.add(0.0, 1.0, 0.0), EntityType.CHICKEN) as LivingEntity
         val thrownPotion: ThrownPotion =
@@ -69,7 +71,7 @@ object SpecialMobUtil {
     }
 
     /**
-     * Spawns particle around a entity.
+     * Spawns particle around an entity.
      *
      * @param entity   entity as center
      * @param particle particle to spawn
@@ -168,7 +170,7 @@ object SpecialMobUtil {
     }
 
     /**
-     * Spawn and mount a entity as a passenger
+     * Spawn and mount an entity as a passenger
      *
      * @param passengerType type of passenger
      * @param carrier       carrier where the passenger should be mounted on
@@ -183,7 +185,7 @@ object SpecialMobUtil {
     }
 
     /**
-     * Spawn and mount a entity on a carrier
+     * Spawn and mount an entity on a carrier
      *
      * @param carrierType type of carrier
      * @param rider       rider to mount
@@ -197,14 +199,14 @@ object SpecialMobUtil {
         return carrier
     }
 
-    fun <T : Entity> spawnAndMount(carrier: Entity, riderClass: Class<out SpecialMob<*>>) : T {
+    fun <T : Entity> spawnAndMount(carrier: Entity, riderClass: Class<out SpecialMob<*>>): T {
         val s = configuration.getWorldSettings(carrier.world).mobSettings
         val f = SpecialMobRegistry.getMobFactoryByName(riderClass.simpleName)!!
         val ms = s.getMobByName(f.mobName)!!
         return carrier.world.spawn(carrier.location, f.entityType.entityClass!!) {
             it.persistentDataContainer[MobManager.NO_TOUCH, PersistentDataType.BYTE] = 1.toByte()
-            carrier.addPassenger(it) ; tagExtension(it, carrier)
-            MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms)}, 1)
+            carrier.addPassenger(it); tagExtension(it, carrier)
+            MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms) }, 1)
         } as T
 
     }
@@ -217,29 +219,33 @@ object SpecialMobUtil {
      * @param <T>        type of the entity
      * @return spawned entity of type
     </T> */
-    fun <T : Entity> spawnAndTagEntity(location: Location, entityType: EntityType) =
+    private fun <T : Entity> spawnAndTagEntity(location: Location, entityType: EntityType) =
         location.world.spawn(location, entityType.entityClass!!) {
             tagSpecialMob(it)
         } as T
 
-    fun <T : Entity> spawnMinion(master: Entity, minionClass: Class<out SpecialMob<*>>, location: Location = master.location) : T {
+    fun <T : Entity> spawnMinion(
+        master: Entity,
+        minionClass: Class<out SpecialMob<*>>,
+        location: Location = master.location
+    ): T {
         val s = configuration.getWorldSettings(location.world).mobSettings
         val f = SpecialMobRegistry.getMobFactoryByName(minionClass.simpleName)!!
         val ms = s.getMobByName(f.mobName)!!
         return location.world.spawn(location, f.entityType.entityClass!!) {
             it.persistentDataContainer[MobManager.NO_TOUCH, PersistentDataType.BYTE] = 1.toByte()
-            MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms)}, 1)
+            MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms) }, 1)
         } as T
 
     }
 
     /**
-     * Marks a entity as a special mob extension
+     * Marks an entity as a special mob extension
      *
      * @param entity   entity to mark
      * @param extended the entity which is extended
      */
-    fun tagExtension(entity: Entity, extended: Entity) {
+    private fun tagExtension(entity: Entity, extended: Entity) {
         val dataContainer: PersistentDataContainer = entity.persistentDataContainer
         dataContainer.set(IS_MOB_EXTENSION, PersistentDataType.BYTE, 1.toByte())
         dataContainer.set(
@@ -249,10 +255,10 @@ object SpecialMobUtil {
     }
 
     /**
-     * Checks if a entity is a extension of a special mob.
+     * Checks if an entity is an extension of a special mob.
      *
      * @param entity entity to check
-     * @return true if the entity is a extension
+     * @return true if the entity is an extension
      */
     fun isExtension(entity: Entity) =
         entity.persistentDataContainer.has(IS_MOB_EXTENSION, PersistentDataType.BYTE)
@@ -261,11 +267,12 @@ object SpecialMobUtil {
      * Get the UUID of the base mob. This will only return a UUID if [.isExtension] returns true
      *
      * @param entity entity to check
-     * @return returns a uuid if the mob is a extension.
+     * @return returns an uuid if the mob is an extension.
      */
-    fun getBaseUUID(entity: Entity) =
+    fun getBaseUUID(entity: Entity): UUID =
         TypeConversion.getUUIDFromBytes(
-            entity.persistentDataContainer.get(BASE_UUID, PersistentDataType.BYTE_ARRAY))
+            entity.persistentDataContainer.get(BASE_UUID, PersistentDataType.BYTE_ARRAY)
+        )
 
     // Old method maybe needed
 //    : UUID? {
@@ -350,8 +357,9 @@ object SpecialMobUtil {
      * @param event    the damage event
      */
     fun handleExtendedEntityDamage(receiver: LivingEntity, other: LivingEntity, event: EntityDamageEvent) {
-        if(event is EntityDamageByEntityEvent
-            && event.damager.uniqueId === other.uniqueId) return
+        if (event is EntityDamageByEntityEvent
+            && event.damager.uniqueId === other.uniqueId
+        ) return
 
         if (receiver.health == 0.0) return
         val newHealth = 0.0.coerceAtLeast(other.health - event.finalDamage)
@@ -407,11 +415,15 @@ object SpecialMobUtil {
 
     fun dispatchLightning(settings: LightningSettings, location: Location) {
         if (location.world == null) return
-        if (settings.doLightning && settings.lightning != 0 && ThreadLocalRandom.current().nextInt(101) <= settings.lightning) {
+        if (settings.doLightning && settings.lightning != 0 && ThreadLocalRandom.current()
+                .nextInt(101) <= settings.lightning
+        ) {
             location.world.strikeLightningEffect(location.clone().add(0.0, 10.0, 0.0))
             return
         }
-        if (settings.doThunder && settings.thunder != 0 && ThreadLocalRandom.current().nextInt(101) <= settings.thunder) {
+        if (settings.doThunder && settings.thunder != 0 && ThreadLocalRandom.current()
+                .nextInt(101) <= settings.thunder
+        ) {
             location.world.players.forEach(Consumer { p: Player ->
                 p.playSound(
                     p.location,
@@ -424,7 +436,7 @@ object SpecialMobUtil {
         }
     }
 
-    fun getEntitiesAround(location: Location, range: Double): Collection<Entity> {
+    private fun getEntitiesAround(location: Location, range: Double): Collection<Entity> {
         return if (location.world == null) emptyList() else location.world.getNearbyEntities(
             location,
             range,

@@ -1,11 +1,12 @@
 package me.racci.bloodnight.specialmobs.mobs.zombie
 
-import org.bukkit.Material
-import org.bukkit.inventory.ItemStack
-import org.bukkit.entity.Zombie
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractZombie
+import org.bukkit.Material
+import org.bukkit.entity.Zombie
+import org.bukkit.inventory.ItemStack
 
 class ArmoredZombie(zombie: Zombie) : AbstractZombie(zombie) {
+
     init {
         val equipment = zombie.equipment
         equipment.helmet = ItemStack(Material.DIAMOND_HELMET)
@@ -13,4 +14,5 @@ class ArmoredZombie(zombie: Zombie) : AbstractZombie(zombie) {
         equipment.leggings = ItemStack(Material.DIAMOND_LEGGINGS)
         equipment.boots = ItemStack(Material.DIAMOND_BOOTS)
     }
+
 }

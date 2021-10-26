@@ -8,12 +8,12 @@ import org.bukkit.configuration.serialization.SerializableAs
 @SerializableAs("bloodNightVanillaMobSettings")
 class VanillaMobSettings : ConfigurationSerializable {
     /**
-     * The modifier which will be multiplied with monster damage when a non special mob deals damage to players.
+     * The modifier which will be multiplied with monster damage when a non-special mob deals damage to players.
      */
     var damageMultiplier = 2.0
 
     /**
-     * The value the damage will be divided by when a player damages a non special mob
+     * The value the damage will be divided by when a player damages a non-special mob
      */
     var healthMultiplier = 2.0
 
@@ -27,15 +27,15 @@ class VanillaMobSettings : ConfigurationSerializable {
     constructor()
 
     constructor(objectMap: Map<String, Any>) {
-        val map             = SerializationUtil.mapOf(objectMap)
-        damageMultiplier    = map.getValueOrDefault("damageMultiplier", damageMultiplier)
-        healthMultiplier    = map.getValueOrDefault("healthMultiplier", healthMultiplier)
-        dropMultiplier      = map.getValueOrDefault("dropMultiplier", dropMultiplier)
-        vanillaDropMode     = EnumUtil.parse(
+        val map = SerializationUtil.mapOf(objectMap)
+        damageMultiplier = map.getValueOrDefault("damageMultiplier", damageMultiplier)
+        healthMultiplier = map.getValueOrDefault("healthMultiplier", healthMultiplier)
+        dropMultiplier = map.getValueOrDefault("dropMultiplier", dropMultiplier)
+        vanillaDropMode = EnumUtil.parse(
             map.getValueOrDefault("vanillaDropMode", vanillaDropMode.name),
             VanillaDropMode::class.java
         )
-        extraDrops          = map.getValueOrDefault("extraDrops", extraDrops)
+        extraDrops = map.getValueOrDefault("extraDrops", extraDrops)
     }
 
     override fun serialize(): Map<String, Any> {

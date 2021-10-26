@@ -7,7 +7,8 @@ import org.bukkit.Particle
 import org.bukkit.entity.Mob
 import org.bukkit.event.entity.EntityDamageEvent
 
-abstract class AbstractSpiderRider(carrier: Mob, passenger: Mob) : ExtendedSpecialMob<Mob, Mob>(carrier, passenger, StatSource.CARRIER) {
+abstract class AbstractSpiderRider(carrier: Mob, passenger: Mob) :
+    ExtendedSpecialMob<Mob, Mob>(carrier, passenger, StatSource.CARRIER) {
 
     override fun tick() {
         if (baseEntity.isDead || !baseEntity.isValid) {

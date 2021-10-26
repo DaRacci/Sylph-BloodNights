@@ -1,27 +1,21 @@
-package me.racci.bloodnight.command.bloodnight;
+package me.racci.bloodnight.command.bloodnight
 
-import de.eldoria.bloodnight.core.BloodNight;
-import de.eldoria.bloodnight.util.Permissions;
-import de.eldoria.eldoutilities.simplecommands.EldoCommand;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.Plugin;
-import org.jetbrains.annotations.NotNull;
+import de.eldoria.eldoutilities.simplecommands.EldoCommand
+import me.racci.bloodnight.core.BloodNight
+import me.racci.bloodnight.util.Permissions
+import org.bukkit.command.Command
+import org.bukkit.command.CommandSender
+import org.bukkit.plugin.Plugin
 
-public class Reload extends EldoCommand {
+class Reload(plugin: Plugin) : EldoCommand(plugin) {
 
-    public Reload(Plugin plugin) {
-        super(plugin);
-    }
-
-    @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<String>): Boolean {
         if (denyAccess(sender, Permissions.Admin.RELOAD)) {
-            return true;
+            return true
         }
-        BloodNight.getInstance().onReload();
-        messageSender().sendMessage(sender, localizer().getMessage("reload.success"));
-        BloodNight.logger().info("BloodNight reloaded!");
-        return true;
+        BloodNight.instance.onReload()
+        messageSender().sendMessage(sender, localizer().getMessage("reload.success"))
+        BloodNight.logger().info("BloodNight reloaded!")
+        return true
     }
 }

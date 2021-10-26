@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit
 
 abstract class AbstractWitch(witch: Witch) : SpecialMob<Witch>(witch) {
 
-    var lastShot = Instant.now()
+    private var lastShot: Instant = Instant.now()
 
     override fun onEnd() {
         SpecialMobUtil.spawnParticlesAround(baseEntity, Particle.CAMPFIRE_COSY_SMOKE, 30)

@@ -8,20 +8,19 @@ import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarFlag
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.SerializableAs
-import java.util.*
 
 @SerializableAs("bloodNightBossBarSettings")
 class BossBarSettings : ConfigurationSerializable {
     var enabled = true
 
     /**
-     * Boss bar title with § as color identifier
+     * Boss bar title with § as colour identifier
      */
     var title = "§c§lBlood Night"
         set(title) {
             field = title.replace("&", "§")
         }
-    var color: BarColor = BarColor.RED
+    var colour: BarColor = BarColor.RED
     var effects: MutableList<BarFlag> = object : ArrayList<BarFlag>() {
         init {
             add(BarFlag.CREATE_FOG)
@@ -35,11 +34,11 @@ class BossBarSettings : ConfigurationSerializable {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
         enabled = map.getValue("enabled")
         title = map.getValue("title")
-        color = map.getValue(
-            "color"
-        ) {EnumUtil.parse(it, BarColor::class.java) }
+        colour = map.getValue(
+            "colour"
+        ) { EnumUtil.parse(it, BarColor::class.java) }
         val effects: List<String> = map.getValue("effects")
-        this.effects = effects.mapNotNull{EnumUtil.parse(it, BarFlag::class.java)}.toMutableList()
+        this.effects = effects.mapNotNull { EnumUtil.parse(it, BarFlag::class.java) }.toMutableList()
     }
 
     fun toggleEffect(flag: BarFlag) {
@@ -60,7 +59,7 @@ class BossBarSettings : ConfigurationSerializable {
         return SerializationUtil.newBuilder()
             .add("enabled", enabled)
             .add("title", title)
-            .add("color", color)
+            .add("colour", colour)
             .add("effects", Lists.newArrayList(effects).map(BarFlag::toString))
             .build()
     }

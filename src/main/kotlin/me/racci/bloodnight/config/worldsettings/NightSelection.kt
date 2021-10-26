@@ -16,11 +16,10 @@ import java.time.Instant
 import java.util.*
 import java.util.logging.Level
 import java.util.stream.Collectors
-import kotlin.collections.HashMap
 
 @SerializableAs("bloodNightNightSelection")
 class NightSelection : ConfigurationSerializable {
-    private var nightSelectionType = RANDOM
+    var nightSelectionType = RANDOM
 
     /**
      * Probability that a night becomes a blood night. In percent 0-100.
@@ -45,7 +44,7 @@ class NightSelection : ConfigurationSerializable {
             put(2, 50)
         }
     }
-    var currPhase = 0
+    private var currPhase = 0
 
     /**
      * Length of a period.
@@ -59,7 +58,7 @@ class NightSelection : ConfigurationSerializable {
     /**
      * Current value of the curve.
      */
-    var currCurvePos = 0
+    private var currCurvePos = 0
 
     /**
      * Min curve value.
@@ -84,7 +83,7 @@ class NightSelection : ConfigurationSerializable {
     /**
      * Current interval
      */
-    var curInterval = 0
+    private var curInterval = 0
 
     constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
@@ -115,22 +114,22 @@ class NightSelection : ConfigurationSerializable {
 
     constructor()
 
-    fun upcountInterval() {
+    private fun upcountInterval() {
         curInterval++
         curInterval %= interval
     }
 
-    fun upcountPhase() {
+    private fun upcountPhase() {
         currPhase++
         currPhase %= phaseCustom.size
     }
 
-    fun upcountCurve() {
+    private fun upcountCurve() {
         currCurvePos++
         currCurvePos %= period
     }
 
-    fun getPhaseProbability(phase: Int): Int {
+    private fun getPhaseProbability(phase: Int): Int {
         return moonPhase.getOrDefault(phase, -1)
     }
 
@@ -255,7 +254,7 @@ class NightSelection : ConfigurationSerializable {
         RANDOM,
 
         /**
-         * Determine bloodnight based on a random value attached to the ingame moon phase.
+         * Determine bloodnight based on a random value attached to the in-game moon phase.
          */
         MOON_PHASE,
 

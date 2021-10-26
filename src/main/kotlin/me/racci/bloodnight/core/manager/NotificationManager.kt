@@ -20,10 +20,14 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerJoinEvent
 
-class NotificationManager(val configuration: Configuration, val nightManager: NightManager, val hookService: HookService) : Listener {
+class NotificationManager(
+    val configuration   : Configuration,
+    val nightManager    : NightManager,
+    private val hookService     : HookService
+) : Listener {
 
-    val localizer       = ILocalizer.getPluginLocalizer(BloodNight::class.java)
-    val messageSender   = MessageSender.getPluginMessageSender(BloodNight::class.java)
+    val localizer       : ILocalizer    = ILocalizer.getPluginLocalizer(BloodNight::class.java)
+    val messageSender   : MessageSender = MessageSender.getPluginMessageSender(BloodNight::class.java)
 
     @EventHandler(priority = EventPriority.MONITOR)
     fun onBloodNightEnd(event: BloodNightEndEvent) {
@@ -53,7 +57,7 @@ class NotificationManager(val configuration: Configuration, val nightManager: Ni
             BroadcastLevel.WORLD -> world.players
             BroadcastLevel.NONE -> return
         }
-        players.forEach{sendBroadcast(it, message)}
+        players.forEach { sendBroadcast(it, message) }
     }
 
     private fun sendBroadcast(player: Player, message: String) {
@@ -96,7 +100,7 @@ class NotificationManager(val configuration: Configuration, val nightManager: Ni
         }
     }
 
-    fun getAlias(world: World): String {
-        return hookService.worldManager.getAlias(world)
+    private fun getAlias(world: World): String? {
+        return hookService.worldManager?.getAlias(world)
     }
 }

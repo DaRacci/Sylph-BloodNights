@@ -5,7 +5,6 @@ import de.eldoria.eldoutilities.serialization.TypeResolvingMap
 import me.racci.bloodnight.core.manager.nightmanager.util.NightUtil
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.SerializableAs
-import java.util.ArrayList
 import java.util.concurrent.ThreadLocalRandom
 
 @SerializableAs("bloodNightNightSettings")
@@ -52,24 +51,24 @@ class NightSettings : ConfigurationSerializable {
      * The duration of the current night in ticks.
      */
     @Transient
-    var currentNightDuration = 0 ; private set
+    var currentNightDuration = 0 ;  private set
 
     constructor()
 
     constructor(objectMap: Map<String, Any>) {
         val map: TypeResolvingMap = SerializationUtil.mapOf(objectMap)
-        skippable           = map.getValueOrDefault("skippable", skippable)
-        nightBegin          = map.getValueOrDefault("nightBegin", nightBegin)
-        nightEnd            = map.getValueOrDefault("nightEnd", nightEnd)
-        startCommands       = map.getValueOrDefault("startCommands", startCommands)
-        endCommands         = map.getValueOrDefault("endCommands", endCommands)
-        nightDurationMode   = if (objectMap.containsKey("overrideNightDuration")) {
+        skippable = map.getValueOrDefault("skippable", skippable)
+        nightBegin = map.getValueOrDefault("nightBegin", nightBegin)
+        nightEnd = map.getValueOrDefault("nightEnd", nightEnd)
+        startCommands = map.getValueOrDefault("startCommands", startCommands)
+        endCommands = map.getValueOrDefault("endCommands", endCommands)
+        nightDurationMode = if (objectMap.containsKey("overrideNightDuration")) {
             if (map.getValue("overrideNightDuration")) NightDuration.EXTENDED else NightDuration.NORMAL
         } else {
             map.getValueOrDefault("nightDurationMode", nightDurationMode, NightDuration::class.java)
         }
-        nightDuration       = map.getValueOrDefault("nightDuration", nightDuration)
-        maxNightDuration    = map.getValueOrDefault("maxNightDuration", maxNightDuration)
+        nightDuration = map.getValueOrDefault("nightDuration", nightDuration)
+        maxNightDuration = map.getValueOrDefault("maxNightDuration", maxNightDuration)
     }
 
     override fun serialize(): Map<String, Any> {
@@ -86,9 +85,9 @@ class NightSettings : ConfigurationSerializable {
 
     fun regenerateNightDuration() {
         currentNightDuration = when (nightDurationMode) {
-            NightDuration.NORMAL    -> NightUtil.getDiff(nightBegin.toLong(), nightEnd.toLong()).toInt()
-            NightDuration.EXTENDED  -> nightDuration * 20
-            NightDuration.RANGE     -> ThreadLocalRandom.current().nextInt(nightDuration, maxNightDuration + 1) * 20
+            NightDuration.NORMAL -> NightUtil.getDiff(nightBegin.toLong(), nightEnd.toLong()).toInt()
+            NightDuration.EXTENDED -> nightDuration * 20
+            NightDuration.RANGE -> ThreadLocalRandom.current().nextInt(nightDuration, maxNightDuration + 1) * 20
         }
     }
 

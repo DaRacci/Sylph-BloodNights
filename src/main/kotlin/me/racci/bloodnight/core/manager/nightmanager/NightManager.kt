@@ -34,8 +34,6 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.collections.HashMap
-import kotlin.collections.HashSet
 
 class NightManager(private val configuration: Configuration) : BukkitRunnable(), Listener {
 
@@ -43,15 +41,15 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
     /**
      * A set containing all world where a blood night is active.
      */
-    val bloodWorlds = HashMap<World, BloodNightData>()
-    val startNight: Queue<World> = ArrayDeque()
-    val endNight: Queue<World> = ArrayDeque()
-    val forceNights = HashSet<World>()
-    val localizer = ILocalizer.getPluginLocalizer(BloodNight::class.java)
-    val messageSender = MessageSender.getPluginMessageSender(BloodNight::class.java)
-    var timeManager: TimeManager? = null
-    var soundManager: SoundManager? = null
-    var initialized = false
+    private val bloodWorlds                         = HashMap<World, BloodNightData>()
+    private val startNight      : Queue<World>      = ArrayDeque()
+    private val endNight        : Queue<World>      = ArrayDeque()
+    private val forceNights     : HashSet<World>    = HashSet()
+    val localizer               : ILocalizer        = ILocalizer.getPluginLocalizer(BloodNight::class.java)
+    val messageSender           : MessageSender     = MessageSender.getPluginMessageSender(BloodNight::class.java)
+    private var timeManager     : TimeManager?      = null
+    private var soundManager    : SoundManager?     = null
+    private var initialized = false
     // <--- Refresh routine ---> //
     /**
      * Check if a day becomes a night.
@@ -69,27 +67,27 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
         BloodNight.logger().info("Executing cleanup task on startup.")
         val s = BloodNight.instance.name.lowercase()
         var i = 0
-        Bukkit.getBossBars().forEach{
+        Bukkit.getBossBars().forEach {
             it.key.namespace.equals(s, true)
             Bukkit.removeBossBar(it.key)
-            i++ ; BloodNight.logger().config("Removed 1 boss bar ${it.key}")
+            i++; BloodNight.logger().config("Removed 1 boss bar ${it.key}")
         }
         BloodNight.logger().info("Removed $i hanging boss bars.")
     }
 
     private fun changeNightStates() {
 
-        while(startNight.isNotEmpty()) {
+        while (startNight.isNotEmpty()) {
             initializeBloodNight(startNight.poll(), false)
         }
 
-        while(forceNights.isNotEmpty()) {
+        while (forceNights.isNotEmpty()) {
             forceNights
-                .filterNot {NightUtil.isNight(it, configuration.getWorldSettings(it))}
+                .filterNot { NightUtil.isNight(it, configuration.getWorldSettings(it)) }
                 .forEach(::initializeBloodNight)
         }
 
-        while(endNight.isNotEmpty()) {
+        while (endNight.isNotEmpty()) {
             resolveBloodNight(endNight.poll())
         }
     }
@@ -106,8 +104,8 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
 
         // skip the calculation if a night should be forced.
         if (!force) {
-            val sel     = settings.nightSelection
-            val `val`   = ThreadLocalRandom.current().nextInt(101)
+            val sel = settings.nightSelection
+            val `val` = ThreadLocalRandom.current().nextInt(101)
             sel.upcount()
             BloodNight.logger().config("Evaluating Blood Night State.")
             BloodNight.logger().config(sel.toString())
@@ -131,7 +129,7 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
             bossBar = Bukkit.createBossBar(
                 getBossBarNamespace(world),
                 bbS.title,
-                bbS.color,
+                bbS.colour,
                 BarStyle.SOLID,
                 *bbS.getEffects()
             )
@@ -164,7 +162,7 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
     }
 
     private fun dispatchCommands(cmds: List<String>, world: World) {
-        cmds.map{it.replace("{world}", world.name)}
+        cmds.map { it.replace("{world}", world.name) }
             .forEach {
                 if (it.contains("{player}")) {
                     world.players.forEach { p ->
@@ -175,8 +173,8 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
     }
 
     private fun enableBloodNightForPlayer(player: Player, world: World) {
-        val bloodNightData  = getBloodNightData(world)
-        val worldSettings   = configuration.getWorldSettings(player.world.name)
+        val bloodNightData = getBloodNightData(world)
+        val worldSettings = configuration.getWorldSettings(player.world.name)
         BloodNight.logger().finer("Enabling blood night for player ${player.name}")
         if (worldSettings.mobSettings.forcePhantoms) {
             player.setStatistic(Statistic.TIME_SINCE_REST, 720000)
@@ -250,14 +248,14 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
         if (actions.loseExpProbability > ThreadLocalRandom.current().nextInt(100)) {
             event.droppedExp = 0
         }
-        actions.deathCommands.forEach{
+        actions.deathCommands.forEach {
             dispatchCommand(console, it.replace("{player}", event.entity.name))
         }
     }
 
     @EventHandler
     fun onPlayerRespawn(event: PlayerRespawnEvent) {
-        val player  = event.player
+        val player = event.player
         val actions = configuration.getWorldSettings(player.world)
             .deathActionSettings
             .playerDeathActions
@@ -272,7 +270,7 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
     }
     // <--- Utility functions ---> //
     /**
-     * Check if a world is currenty in blood night mode.
+     * Check if a world is current in blood night mode.
      *
      * @param world world to check
      * @return true if world is currently in blood night mode.
@@ -294,20 +292,18 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
         BloodNight.logger().info("Resolving blood nights.")
 
         // Copy to new collection since the blood worlds are removed on resolve.
-        for (world in HashSet<World>(bloodWorlds.keys)) {
+        for (world in HashSet(bloodWorlds.keys)) {
             resolveBloodNight(world)
         }
         BloodNight.logger().info("Night manager shutdown successful.")
     }
 
     fun reload() {
-        for (observedWorld in HashSet<World>(bloodWorlds.keys)) {
+        for (observedWorld in HashSet(bloodWorlds.keys)) {
             resolveBloodNight(observedWorld)
         }
-        if (timeManager != null) {
-            if (!timeManager!!.isCancelled) {
-                timeManager!!.cancel()
-            }
+        if (timeManager != null && !timeManager!!.isCancelled) {
+            timeManager!!.cancel()
         }
         timeManager = TimeManager(configuration, this)
         BloodNight.instance.registerListener(timeManager)

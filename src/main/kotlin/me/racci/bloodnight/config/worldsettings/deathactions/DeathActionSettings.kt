@@ -11,9 +11,9 @@ class DeathActionSettings : ConfigurationSerializable {
     var playerDeathActions = PlayerDeathActions()
 
     constructor(objectMap: Map<String, Any>) {
-        val map             = SerializationUtil.mapOf(objectMap)
-        mobDeathActions     = map.getValueOrDefault("mobDeathActions", mobDeathActions)
-        playerDeathActions  = map.getValueOrDefault("playerDeathActions", playerDeathActions)
+        val map = SerializationUtil.mapOf(objectMap)
+        mobDeathActions = map.getValueOrDefault("mobDeathActions", mobDeathActions)
+        playerDeathActions = map.getValueOrDefault("playerDeathActions", playerDeathActions)
     }
 
     constructor()

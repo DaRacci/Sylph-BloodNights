@@ -8,11 +8,11 @@ import org.bukkit.persistence.PersistentDataContainer
 import org.bukkit.persistence.PersistentDataType
 
 object InvMenuUtil {
-    private val INV_MENU_UTIL = "inv_menu_util"
+    private const val INV_MENU_UTIL = "inv_menu_util"
     private val BOOLEAN_KEY: NamespacedKey = NamespacedKey(INV_MENU_UTIL, "boolean")
 
     /**
-     * Get a item stack with the matching material based on the state.
+     * Get an item stack with the matching material based on the state.
      *
      *
      * This method will apply a nbt tag which marks this item as a boolean item.

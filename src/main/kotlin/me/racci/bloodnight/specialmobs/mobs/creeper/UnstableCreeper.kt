@@ -1,19 +1,22 @@
 package me.racci.bloodnight.specialmobs.mobs.creeper
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractCreeper
 import org.bukkit.Particle
+import org.bukkit.entity.Creeper
+import org.bukkit.event.entity.EntityDamageEvent
 
 /**
  * Unstable creeper explodes on damage. Can only be killed by critical attacks.
  */
-class UnstableCreeper(creeper: Creeper?) : AbstractCreeper(creeper) {
+class UnstableCreeper(creeper: Creeper) : AbstractCreeper(creeper) {
+
     override fun tick() {
         SpecialMobUtil.spawnParticlesAround(baseEntity.location, Particle.END_ROD, 2)
     }
 
     override fun onDamage(event: EntityDamageEvent) {
-        if (event.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.getCause() == EntityDamageEvent.DamageCause.PROJECTILE) {
+        if (event.cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK || event.cause == EntityDamageEvent.DamageCause.PROJECTILE) {
             explode()
         }
     }

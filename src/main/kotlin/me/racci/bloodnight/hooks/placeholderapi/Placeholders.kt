@@ -19,26 +19,26 @@ class Placeholders : PlaceholderExpansion() {
 
     private val probability = Pattern.compile("probability(?:_(?<offset>[0-9]))?")
     private val worldActive = Pattern.compile("active_(?<world>.+)")
-    private val worldCache  = CacheBuilder.newBuilder()
+    private val worldCache = CacheBuilder.newBuilder()
         .expireAfterWrite(500, TimeUnit.MILLISECONDS)
         .build<String, String>()
 
-    override fun getAuthor()        = BloodNight.instance.description.authors.joinToString(", ")
-    override fun getVersion()       = BloodNight.instance.description.version
-    override fun getIdentifier()    = "bloodnight"
+    override fun getAuthor() = BloodNight.instance.description.authors.joinToString(", ")
+    override fun getVersion() = BloodNight.instance.description.version
+    override fun getIdentifier() = "bloodnight"
 
     override fun persist() = true
     override fun canRegister() = true
 
     override fun onPlaceholderRequest(player: Player?, params: String): String {
-        if (player == null) return retriveFromWorldCache(params) { calcWorldPlaceholder(params) }
+        if (player == null) return retrieveFromWorldCache(params) { calcWorldPlaceholder(params) }
         val world: World = player.world
-        return retriveFromWorldCache(
+        return retrieveFromWorldCache(
             world.name + "_" + params
         ) { calcPlayerPlaceholder(params, world) }
     }
 
-    fun retriveFromWorldCache(key: String, calc: Callable<String>): String {
+    private fun retrieveFromWorldCache(key: String, calc: Callable<String>): String {
         try {
             return worldCache[key, calc]
         } catch (e: ExecutionException) {

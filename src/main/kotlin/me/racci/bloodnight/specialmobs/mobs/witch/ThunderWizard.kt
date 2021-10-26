@@ -1,19 +1,22 @@
 package me.racci.bloodnight.specialmobs.mobs.witch
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractWitch
 import org.bukkit.Particle
+import org.bukkit.entity.Witch
+import org.bukkit.event.entity.ProjectileLaunchEvent
 
-class ThunderWizard(witch: Witch?) : AbstractWitch(witch) {
-    fun tick() {
-        SpecialMobUtil.spawnParticlesAround(getBaseEntity(), Particle.SPELL_INSTANT, 15)
-        if (canShoot(4) && getBaseEntity().getTarget() != null) {
-            getBaseEntity().getLocation().getWorld().strikeLightning(getBaseEntity().getTarget().getLocation())
+class ThunderWizard(witch: Witch) : AbstractWitch(witch) {
+
+    override fun tick() {
+        SpecialMobUtil.spawnParticlesAround(baseEntity, Particle.SPELL_INSTANT, 15)
+        if (canShoot(4) && baseEntity.target != null) {
+            baseEntity.location.world.strikeLightning(baseEntity.target!!.location)
             shot()
         }
     }
 
-    fun onProjectileShoot(event: ProjectileLaunchEvent) {
-        event.setCancelled(true)
+    override fun onProjectileShoot(event: ProjectileLaunchEvent) {
+        event.isCancelled = true
     }
 }

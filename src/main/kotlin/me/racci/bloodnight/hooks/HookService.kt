@@ -16,8 +16,8 @@ class HookService(private val plugin: Plugin, configuration: Configuration, nigh
     private val configuration: Configuration
     private val nightManager: NightManager
     fun setup() {
-        add("PlaceholderAPI")   { PlaceholderAPIHook() }
-        add("Multiverse-Core")  { MultiverseHook() }
+        add("PlaceholderAPI") { PlaceholderAPIHook() }
+        add("Multiverse-Core") { MultiverseHook() }
     }
 
     fun add(name: String, hook: Callable<AbstractHookService<*>>) {
@@ -40,14 +40,14 @@ class HookService(private val plugin: Plugin, configuration: Configuration, nigh
 
     fun shutdown() {
         BloodNight.logger().info("Hooks shutting down.")
-        hooks.values.forEach{it.shutdown()} ; hooks.clear()
+        hooks.values.forEach { it.shutdown() }; hooks.clear()
     }
 
-    val worldManager: WorldManager
+    val worldManager: WorldManager?
         get() {
             return if (hooks.containsKey(MultiverseHook::class.java)) {
                 hooks[MultiverseHook::class.java] as WorldManager
-            } else WorldManager.DEFAULT
+            } else null
         }
 
     init {

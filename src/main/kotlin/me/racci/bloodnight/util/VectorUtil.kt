@@ -9,7 +9,7 @@ object VectorUtil {
         return getDirectionVector(start.toVector(), target.toVector())
     }
 
-    fun getDirectionVector(start: Vector, target: Vector): Vector {
+    private fun getDirectionVector(start: Vector, target: Vector): Vector {
         return Vector(target.x - start.x, target.y - start.y, target.z - start.z)
     }
 

@@ -1,3 +1,5 @@
+@file:Suppress("KDocUnresolvedReference")
+
 package me.racci.bloodnight.specialmobs
 
 import org.bukkit.entity.LivingEntity
@@ -113,10 +115,10 @@ abstract class SpecialMob<T : LivingEntity>(val baseEntity: T) {
     open fun onHit(event: EntityDamageByEntityEvent) {}
 
     /**
-     * Attemts to remove the base entity.
+     * Attempts to remove the base entity.
      *
      *
-     * This should not be overridden unless your entity has a extension.
+     * This should not be overridden unless your entity has an extension.
      *
      *
      * If you override this just remove the extension and call super afterwards.
@@ -128,7 +130,7 @@ abstract class SpecialMob<T : LivingEntity>(val baseEntity: T) {
     }
 
     /**
-     * This event is called when a entity which is tagged as special mob extension receives damage. This will be most
+     * This event is called when an entity which is tagged as special mob extension receives damage. This will be most
      * likely the passenger or the carrier of a special mob.
      *
      *
@@ -138,14 +140,14 @@ abstract class SpecialMob<T : LivingEntity>(val baseEntity: T) {
      * Best practise should be that the damage to the extension is forwarded to the base mob.
      *
      *
-     * Dont implement this if the special mob doesn't has an extension.
+     * Don't implement this if the special mob doesn't have an extension.
      *
      * @param event damage event of the extension taking damage,
      */
     open fun onExtensionDamage(event: EntityDamageEvent) {}
 
     /**
-     * This event is called when a entity which is tagged as special mob extension is killed.
+     * This event is called when an entity which is tagged as special mob extension is killed.
      *
      *
      * This will be most likely the passenger or the carrier of a special mob.
@@ -154,7 +156,7 @@ abstract class SpecialMob<T : LivingEntity>(val baseEntity: T) {
      * This event should be used to kill the remaining entity.
      *
      *
-     * Dont implement this if the mob doesn't has an extension.
+     * Don't implement this if the mob doesn't have an extension.
      *
      * @param event damage event of the extension taking damage,
      */

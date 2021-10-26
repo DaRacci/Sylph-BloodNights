@@ -8,7 +8,7 @@ import org.bukkit.entity.EntityType
 
 open class ParticleCloud(effectCloud: AreaEffectCloud) {
 
-    val effectCloud: AreaEffectCloud
+    private val effectCloud: AreaEffectCloud
 
     fun tick() {
         effectCloud.duration = 60 * 20

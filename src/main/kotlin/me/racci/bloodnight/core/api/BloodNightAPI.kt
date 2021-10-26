@@ -13,8 +13,8 @@ import org.bukkit.World
  */
 class BloodNightAPI(nightManager: NightManager, configuration: Configuration) : IBloodNightAPI {
 
-    private val nightManager    : NightManager
-    private val configuration   : Configuration
+    private val nightManager: NightManager
+    private val configuration: Configuration
 
     override fun isBloodNightActive(world: World) =
         nightManager.isBloodNightActive(world)

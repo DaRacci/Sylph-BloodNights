@@ -15,12 +15,12 @@ object MoonPhase {
      * @return moon index 0..7
      */
     fun computePhaseIndex(cal: Calendar): Int {
-        val year    = cal.get(Calendar.YEAR)
-        var month   = cal.get(Calendar.MONTH) + 1 // 0 = Jan, 1 = Feb, etc.
-        val day     = cal.get(Calendar.DATE)
-        val hour    = cal.get(Calendar.HOUR)
-        val min     = cal.get(Calendar.MINUTE)
-        val sec     = cal.get(Calendar.SECOND)
+        val year = cal.get(Calendar.YEAR)
+        var month = cal.get(Calendar.MONTH) + 1 // 0 = Jan, 1 = Feb, etc.
+        val day = cal.get(Calendar.DATE)
+        val hour = cal.get(Calendar.HOUR)
+        val min = cal.get(Calendar.MINUTE)
+        val sec = cal.get(Calendar.SECOND)
         val dayExact = day + hour / 24.0 + min / 1440.0 + sec / 86400.0
         if (month > 12) {
             month = 0

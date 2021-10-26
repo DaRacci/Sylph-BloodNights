@@ -8,8 +8,8 @@ import java.util.function.Function
 
 class MobGroup(entityType: EntityType) {
 
-    val entityType  : EntityType
-    val factories   : ArrayList<MobFactory> = ArrayList()
+    val entityType: EntityType
+    val factories: ArrayList<MobFactory> = ArrayList()
 
     val baseClass: Class<out Entity>
         get() = entityType.entityClass!!

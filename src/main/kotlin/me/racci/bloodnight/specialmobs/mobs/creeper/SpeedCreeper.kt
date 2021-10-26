@@ -1,9 +1,13 @@
 package me.racci.bloodnight.specialmobs.mobs.creeper
 
-import de.eldoria.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractCreeper
+import org.bukkit.entity.Creeper
+import org.bukkit.event.entity.ExplosionPrimeEvent
+import org.bukkit.potion.PotionEffectType
 
-class SpeedCreeper(creeper: Creeper?) : AbstractCreeper(creeper) {
+class SpeedCreeper(creeper: Creeper) : AbstractCreeper(creeper) {
+
     override fun tick() {
         SpecialMobUtil.addPotionEffect(baseEntity, PotionEffectType.SPEED, 4, true)
     }
@@ -14,7 +18,7 @@ class SpeedCreeper(creeper: Creeper?) : AbstractCreeper(creeper) {
     }
 
     override fun onExplosionPrimeEvent(event: ExplosionPrimeEvent) {
-        event.setFire(true)
+        event.fire = true
     }
 
     init {

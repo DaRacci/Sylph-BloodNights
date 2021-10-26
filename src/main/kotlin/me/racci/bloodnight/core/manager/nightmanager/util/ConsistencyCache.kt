@@ -6,7 +6,7 @@ import org.bukkit.entity.Player
 
 class ConsistencyCache(player: Player) {
 
-    val timeSinceRest = player.getStatistic(Statistic.TIME_SINCE_REST)
+    private val timeSinceRest = player.getStatistic(Statistic.TIME_SINCE_REST)
 
     fun revert(player: OfflinePlayer) {
         player.setStatistic(Statistic.TIME_SINCE_REST, timeSinceRest)

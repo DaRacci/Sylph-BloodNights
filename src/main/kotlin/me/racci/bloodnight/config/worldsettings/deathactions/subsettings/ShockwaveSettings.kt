@@ -39,7 +39,7 @@ class ShockwaveSettings : ConfigurationSerializable {
      */
     var minDuration = 0.1
 
-    private var shockwaveEffects: HashMap<PotionEffectType, PotionEffectSettings> =
+    var shockwaveEffects: HashMap<PotionEffectType, PotionEffectSettings> =
         object : HashMap<PotionEffectType, PotionEffectSettings>() {
             init {
                 put(PotionEffectType.CONFUSION, PotionEffectSettings(PotionEffectType.CONFUSION, 5))
@@ -47,12 +47,14 @@ class ShockwaveSettings : ConfigurationSerializable {
         }
 
     constructor(objectMap: Map<String, Any>) {
-        val map                 = SerializationUtil.mapOf(objectMap)
-        shockwaveProbability    = map.getValueOrDefault("shockwaveProbability", shockwaveProbability)
-        shockwavePower          = map.getValueOrDefault("shockwavePower", shockwavePower)
-        shockwaveRange          = map.getValueOrDefault("shockwaveRange", shockwaveRange)
-        shockwaveEffects        = map.getMap<PotionEffectType, PotionEffectSettings>("shockwaveEffects") {it,_->PotionEffectType.getByName(it)} as HashMap
-        minDuration             = map.getValueOrDefault("minDuration", minDuration)
+        val map = SerializationUtil.mapOf(objectMap)
+        shockwaveProbability = map.getValueOrDefault("shockwaveProbability", shockwaveProbability)
+        shockwavePower = map.getValueOrDefault("shockwavePower", shockwavePower)
+        shockwaveRange = map.getValueOrDefault("shockwaveRange", shockwaveRange)
+        shockwaveEffects = map.getMap<PotionEffectType, PotionEffectSettings>("shockwaveEffects") { it, _ ->
+            PotionEffectType.getByName(it)
+        } as HashMap
+        minDuration = map.getValueOrDefault("minDuration", minDuration)
     }
 
     constructor()
@@ -62,7 +64,7 @@ class ShockwaveSettings : ConfigurationSerializable {
             .add("shockwaveProbability", shockwaveProbability)
             .add("shockwavePower", shockwavePower)
             .add("shockwaveRange", shockwaveRange)
-            .addMap("shockwaveEffects", shockwaveEffects) {it,_->it.name}
+            .addMap("shockwaveEffects", shockwaveEffects) { it, _ -> it.name }
             .add("minDuration", minDuration)
             .build()
     }

@@ -13,9 +13,9 @@ open class DeathActions : ConfigurationSerializable {
     var shockwaveSettings = ShockwaveSettings()
 
     constructor(objectMap: Map<String, Any>) {
-        val map             = SerializationUtil.mapOf(objectMap)
-        lightningSettings   = map.getValueOrDefault("lightningSettings", lightningSettings)
-        shockwaveSettings   = map.getValueOrDefault("shockwaveSettings", shockwaveSettings)
+        val map = SerializationUtil.mapOf(objectMap)
+        lightningSettings = map.getValueOrDefault("lightningSettings", lightningSettings)
+        shockwaveSettings = map.getValueOrDefault("shockwaveSettings", shockwaveSettings)
     }
 
     constructor()

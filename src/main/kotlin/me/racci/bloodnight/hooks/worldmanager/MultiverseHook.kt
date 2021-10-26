@@ -5,6 +5,7 @@ import me.racci.bloodnight.hooks.AbstractHookService
 import org.bukkit.World
 
 class MultiverseHook : AbstractHookService<MultiverseCore>("Multiverse-Core"), WorldManager {
+
     private var plugin: MultiverseCore? = null
 
     override val hook: MultiverseCore

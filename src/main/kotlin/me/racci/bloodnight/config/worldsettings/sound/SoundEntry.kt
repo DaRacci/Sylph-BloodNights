@@ -1,7 +1,6 @@
 package me.racci.bloodnight.config.worldsettings.sound
 
 import de.eldoria.eldoutilities.serialization.SerializationUtil
-import de.eldoria.eldoutilities.serialization.TypeResolvingMap
 import de.eldoria.eldoutilities.utils.EMath
 import de.eldoria.eldoutilities.utils.EnumUtil
 import org.bukkit.Location
@@ -15,24 +14,24 @@ import java.util.concurrent.ThreadLocalRandom
 @SerializableAs("bloodNightSoundEntry")
 class SoundEntry : ConfigurationSerializable {
     var sound: Sound = Sound.UI_BUTTON_CLICK
-    var pitch: ArrayList<Double> = object : ArrayList<Double>() {
+    private var pitch: ArrayList<Double> = object : ArrayList<Double>() {
         init {
             add(1.0)
         }
     }
-    var volume: ArrayList<Double> = object : ArrayList<Double>() {
+    private var volume: ArrayList<Double> = object : ArrayList<Double>() {
         init {
             add(1.0)
         }
     }
 
     constructor(objectMap: Map<String, Any>) {
-        val map     = SerializationUtil.mapOf(objectMap)
-        val name    = map.getValueOrDefault("sound", sound.name)
-        sound       = EnumUtil.parse(name, Sound::class.java) ?: Sound.UI_BUTTON_CLICK
-        pitch       = map.getValueOrDefault("pitch", pitch)
+        val map = SerializationUtil.mapOf(objectMap)
+        val name = map.getValueOrDefault("sound", sound.name)
+        sound = EnumUtil.parse(name, Sound::class.java) ?: Sound.UI_BUTTON_CLICK
+        pitch = map.getValueOrDefault("pitch", pitch)
         clampArray(pitch, 0.01, 2.0)
-        volume      = map.getValueOrDefault("volume", volume)
+        volume = map.getValueOrDefault("volume", volume)
         clampArray(volume, 0.01, 1.0)
     }
 

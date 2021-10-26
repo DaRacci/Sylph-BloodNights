@@ -22,17 +22,17 @@ import java.util.*
 
 class SpecialMobManager(nightManager: NightManager, configuration: Configuration) : BukkitRunnable(), Listener {
 
-    val mobRegistry     = HashMap<String, WorldMobs>()
-    val nightManager    : NightManager
-    val configuration   : Configuration
-    val lostEntities    = ArrayDeque<Entity>()
+    private val mobRegistry = HashMap<String, WorldMobs>()
+    val nightManager: NightManager
+    val configuration: Configuration
+    private val lostEntities = ArrayDeque<Entity>()
 
     fun wrapMob(entity: Entity, mobFactory: MobFactory) {
         if (entity !is LivingEntity) return
         if (SpecialMobUtil.isSpecialMob(entity)) return
 
         val mobSettings = configuration.getWorldSettings(entity.world.name).mobSettings
-        val mobSetting  = mobSettings.getMobByName(mobFactory.mobName) ?: return
+        val mobSetting = mobSettings.getMobByName(mobFactory.mobName) ?: return
 
         val specialMob = mobFactory.wrap(entity, mobSettings, mobSetting)
         registerMob(specialMob)
@@ -51,7 +51,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
     }
 
     fun getWorldMobs(world: World): WorldMobs {
-        return mobRegistry.computeIfAbsent(world.name) {WorldMobs()}
+        return mobRegistry.computeIfAbsent(world.name) { WorldMobs() }
     }
 
     /*
@@ -59,14 +59,14 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
     */
     @EventHandler
     fun onEntityTeleport(event: EntityTeleportEvent) {
-        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onTeleport(event)}
+        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onTeleport(event) }
     }
 
     @EventHandler
     fun onProjectileShoot(event: ProjectileLaunchEvent) {
         val projectileSource = ProjectileUtil.getProjectileSource(event.entity)
         if (projectileSource.isEntity) {
-            getWorldMobs(event.entity.world).invokeIfPresent(projectileSource.entity) {it.onProjectileShoot(event)}
+            getWorldMobs(event.entity.world).invokeIfPresent(projectileSource.entity) { it.onProjectileShoot(event) }
         }
     }
 
@@ -74,7 +74,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
     fun onProjectileHit(event: ProjectileHitEvent) {
         val projectileSource = ProjectileUtil.getProjectileSource(event.entity)
         if (projectileSource.isEntity) {
-            getWorldMobs(event.entity.world).invokeIfPresent(projectileSource.entity) {it.onProjectileHit(event)}
+            getWorldMobs(event.entity.world).invokeIfPresent(projectileSource.entity) { it.onProjectileHit(event) }
         }
     }
 
@@ -82,42 +82,48 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
     fun onDeath(event: EntityDeathEvent) {
         if (SpecialMobUtil.isSpecialMob(event.entity)) {
             if (SpecialMobUtil.isExtension(event.entity)) {
-                val baseUUID = SpecialMobUtil.getBaseUUID(event.entity) ?: return
-                getWorldMobs(event.entity.world).invokeIfPresent(baseUUID) {it.onExtensionDeath(event)}
+                val baseUUID = SpecialMobUtil.getBaseUUID(event.entity)
+                getWorldMobs(event.entity.world).invokeIfPresent(baseUUID) { it.onExtensionDeath(event) }
             } else {
-                getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onDeath(event)}
+                getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onDeath(event) }
             }
         }
     }
 
     @EventHandler
     fun onKill(event: EntityDeathEvent) {
-        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onKill(event)}
+        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onKill(event) }
     }
 
     @EventHandler
     fun onExplosionPrimeEvent(event: ExplosionPrimeEvent) {
-        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onExplosionPrimeEvent(event)}
+        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onExplosionPrimeEvent(event) }
     }
 
     @EventHandler
     fun onExplosionEvent(event: EntityExplodeEvent) {
-        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onExplosionEvent(event)}
+        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onExplosionEvent(event) }
     }
 
     @EventHandler
     fun onTargetEvent(event: EntityTargetEvent) {
 
         if (event.target != null
-            && SpecialMobUtil.isSpecialMob(event.target!!)) {event.isCancelled = true ; return}
+            && SpecialMobUtil.isSpecialMob(event.target!!)
+        ) {
+            event.isCancelled = true; return
+        }
 
         if (!SpecialMobUtil.isSpecialMob(event.entity)) return
 
         if (event.target != null
-            && event.target!!.type != EntityType.PLAYER) {event.isCancelled = true ; return}
+            && event.target!!.type != EntityType.PLAYER
+        ) {
+            event.isCancelled = true; return
+        }
 
         if (event.target == null || event.target is LivingEntity) {
-            getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onTargetEvent(event)}
+            getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onTargetEvent(event) }
         }
     }
 
@@ -125,10 +131,10 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
     fun onDamage(event: EntityDamageEvent) {
         if (!SpecialMobUtil.isSpecialMob(event.entity)) return
         if (SpecialMobUtil.isExtension(event.entity)) {
-            val baseUUID = SpecialMobUtil.getBaseUUID(event.entity) ?: return
-            getWorldMobs(event.entity.world).invokeIfPresent(baseUUID) {it.onExtensionDamage(event)}
+            val baseUUID = SpecialMobUtil.getBaseUUID(event.entity)
+            getWorldMobs(event.entity.world).invokeIfPresent(baseUUID) { it.onExtensionDamage(event) }
         } else {
-            getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onDamage(event)}
+            getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onDamage(event) }
         }
     }
 
@@ -136,22 +142,22 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
     fun onDamageByEntity(event: EntityDamageByEntityEvent) {
         if (!SpecialMobUtil.isSpecialMob(event.entity)) return
         if (SpecialMobUtil.isExtension(event.entity)) {
-            val baseUUID = SpecialMobUtil.getBaseUUID(event.entity) ?: return
-            getWorldMobs(event.entity.world).invokeIfPresent(baseUUID) {it.onDamageByEntity(event)}
+            val baseUUID = SpecialMobUtil.getBaseUUID(event.entity)
+            getWorldMobs(event.entity.world).invokeIfPresent(baseUUID) { it.onDamageByEntity(event) }
         } else {
-            getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onDamageByEntity(event)}
+            getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onDamageByEntity(event) }
         }
     }
 
     @EventHandler
     fun onHit(event: EntityDamageByEntityEvent) {
-        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) {it.onHit(event)}
+        getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onHit(event) }
     }
 
     /*
     END OF EVENT REDIRECTION SECTION
      */
-    fun registerMob(mob: SpecialMob<*>) {
+    private fun registerMob(mob: SpecialMob<*>) {
         val world: World = mob.baseEntity.location.world
         getWorldMobs(world).put(mob.baseEntity.uniqueId, mob)
     }
@@ -163,12 +169,15 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
         worldMobs.invokeAll(SpecialMob<*>::remove)
         worldMobs.clear()
         val iteratingTask: IteratingTask<Entity> =
-            IteratingTask(event.world.entities, result@ {
+            IteratingTask(event.world.entities, result@{
                 if (it !is LivingEntity) return@result false
-                if (SpecialMobUtil.isSpecialMob(it)) {lostEntities.add(it) ; return@result true}
+                if (SpecialMobUtil.isSpecialMob(it)) {
+                    lostEntities.add(it); return@result true
+                }
                 false
             }, { stats: TaskStatistics ->
-                BloodNight.logger().config("Marked ${stats.processedElements} lost entities for removal in ${stats.time}ms")
+                BloodNight.logger()
+                    .config("Marked ${stats.processedElements} lost entities for removal in ${stats.time}ms")
             })
         iteratingTask.runTaskTimer(BloodNight.instance, 5, 1)
     }
