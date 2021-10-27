@@ -11,10 +11,10 @@ import org.bukkit.plugin.Plugin
 import java.util.concurrent.Callable
 import java.util.logging.Level
 
-class HookService(private val plugin: Plugin, configuration: Configuration, nightManager: NightManager) {
+class HookService(private val plugin: Plugin, private val configuration: Configuration, private val nightManager: NightManager) {
+
     private val hooks: MutableMap<Class<*>, AbstractHookService<*>> = HashMap()
-    private val configuration: Configuration
-    private val nightManager: NightManager
+
     fun setup() {
         add("PlaceholderAPI") { PlaceholderAPIHook() }
         add("Multiverse-Core") { MultiverseHook() }
@@ -49,9 +49,4 @@ class HookService(private val plugin: Plugin, configuration: Configuration, nigh
                 hooks[MultiverseHook::class.java] as WorldManager
             } else null
         }
-
-    init {
-        this.configuration = configuration
-        this.nightManager = nightManager
-    }
 }

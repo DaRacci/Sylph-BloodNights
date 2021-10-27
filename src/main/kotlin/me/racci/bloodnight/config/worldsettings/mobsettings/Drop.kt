@@ -16,8 +16,10 @@ import java.util.regex.Pattern
 @Suppress("UNUSED", "DEPRECATION")
 @SerializableAs("bloodNightDrop")
 class Drop : ConfigurationSerializable {
+
     val item: ItemStack
         get() = field.clone()
+
     val weight: Int
 
     constructor(objectMap: Map<String, Any>) {

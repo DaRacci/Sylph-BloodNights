@@ -16,11 +16,9 @@ import me.racci.bloodnight.core.BloodNight.Companion.nightManager
 import me.racci.bloodnight.core.manager.nightmanager.NightManager
 import me.racci.bloodnight.core.mobfactory.WorldMobFactory
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
-import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.World
-import org.bukkit.attribute.Attribute
 import org.bukkit.block.Beehive
 import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
@@ -44,8 +42,9 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         var delayedActions: DelayedActions = DelayedActions.start(BloodNight.instance)
         val worldFucktories = HashMap<String, WorldMobFactory>()
 
-        val NO_TOUCH: NamespacedKey = BloodNight.namespacedKey("notouch")
-        val PICKED_UP: NamespacedKey = BloodNight.namespacedKey("pickedUp")
+        val NO_TOUCH    : NamespacedKey     = BloodNight.namespacedKey("notouch")
+        val NO_DROP     : NamespacedKey     = BloodNight.namespacedKey("nodrop")
+        val PICKED_UP   : NamespacedKey     = BloodNight.namespacedKey("pickedUp")
     }
 
     init {
@@ -55,30 +54,43 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onHollowsEveMobSpawn(event: CreatureSpawnEvent) {
-        (event.entity as? Ageable)?.setAdult()
-        event.entity.health = event.entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
-        HollowsEve2021.dropChances(event.entity.equipment)
-        // Drops Needed here
-    }
-
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    fun onMobSpawn(event: CreatureSpawnEvent) {
         if (!nightManager.isBloodNightActive(event.entity.world)) return
+        if (!(event.entity is Monster || event.entity is Flying)) return
         if (event.spawnReason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
-            event.entity.persistentDataContainer[NO_TOUCH, PersistentDataType.BYTE] = 1.toByte(); return
+            event.entity.persistentDataContainer[NO_DROP, PersistentDataType.BYTE] = 1.toByte(); return
         }
+        if (event.location.y < 60) {event.isCancelled = true ; return}
         if (event.entity.persistentDataContainer.has(NO_TOUCH, PersistentDataType.BYTE)) return
 
         val world = event.location.world
         val mobSettings = configuration.getWorldSettings(world.name).mobSettings
-        val mobFactory = getWorldMobFactory(world).getRandomFactory(event.entity) ?: return
+        val mobFactory = getWorldMobFactory(world).getHollowsEveFactory(event.entity)
+        if(mobFactory == null) {event.isCancelled = true ; return}
 
-        if (mobSettings.spawnPercentage < random.nextInt(101)) return
+        if (75 < random.nextInt(101)) {event.isCancelled = true ; return}
 
         mobSettings.getMobByName(mobFactory.mobName)
-        delayedActions.schedule({ specialMobManager.wrapMob(event.entity, mobFactory) }, 1)
+        delayedActions.schedule({ specialMobManager.wrapHollowsEve(event.entity, mobFactory) }, 1)
     }
+
+
+//    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+//    fun onMobSpawn(event: CreatureSpawnEvent) {
+//        if (!nightManager.isBloodNightActive(event.entity.world)) return
+//        if (event.spawnReason == CreatureSpawnEvent.SpawnReason.SPAWNER) {
+//            event.entity.persistentDataContainer[NO_TOUCH, PersistentDataType.BYTE] = 1.toByte(); return
+//        }
+//        if (event.entity.persistentDataContainer.has(NO_TOUCH, PersistentDataType.BYTE)) return
+//
+//        val world = event.location.world
+//        val mobSettings = configuration.getWorldSettings(world.name).mobSettings
+//        val mobFactory = getWorldMobFactory(world).getRandomFactory(event.entity) ?: return
+//
+//        if (mobSettings.spawnPercentage < random.nextInt(101)) return
+//
+//        mobSettings.getMobByName(mobFactory.mobName)
+//        delayedActions.schedule({ specialMobManager.wrapMob(event.entity, mobFactory) }, 1)
+//    }
 
     private fun getWorldMobFactory(world: World) =
         worldFucktories.computeIfAbsent(world.name) { WorldMobFactory(configuration.getWorldSettings(it)) }
@@ -135,7 +147,7 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         if (!nightManager.isBloodNightActive(entity.world)) {
             event.drops.forEach(::removePickupTag); return
         }
-        if (entity.persistentDataContainer.has(NO_TOUCH, PersistentDataType.BYTE)) return
+        if (entity.persistentDataContainer.has(NO_DROP, PersistentDataType.BYTE)) return
 
         val worldSettings = configuration.getWorldSettings(entity.world)
         val shockwaveSettings = worldSettings.deathActionSettings.mobDeathActions.shockwaveSettings
@@ -162,43 +174,46 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         BloodNight.logger().fine("Attempt to drop items.")
 
         if (SpecialMobUtil.isSpecialMob(entity)) {
-            if (!mobSettings.naturalDrops) {
-                BloodNight.logger().fine("Natural Drops are disabled. Clear loot.")
-                event.drops.clear()
-            } else {
-                BloodNight.logger().fine("Natural Drops are enabled. Multiply loot.")
-                for (drop in event.drops) {
-                    if (isPickedUp(drop)) continue
-                    drop.amount *= vanillaMobSettings.dropMultiplier.toInt()
-                }
-            }
+            event.drops.clear()
+//            if (!mobSettings.naturalDrops) {
+//                BloodNight.logger().fine("Natural Drops are disabled. Clear loot.")
+//                event.drops.clear()
+//            } else {
+//                BloodNight.logger().fine("Natural Drops are enabled. Multiply loot.")
+//                for (drop in event.drops) {
+//                    if (isPickedUp(drop)) continue
+//                    drop.amount *= vanillaMobSettings.dropMultiplier.toInt()
+//                }
+//            }
 
             val specialMob = SpecialMobUtil.getSpecialMobType(entity) ?: return
             val mobByName = mobSettings.getMobByName(specialMob) ?: return
             val drops = mobSettings.getDrops(mobByName)
             BloodNight.logger().finer("Added ${drops.size} drops to ${event.drops.size} drops.")
             event.drops.addAll(drops)
-        } else {
-            val dropMode: VanillaDropMode = vanillaMobSettings.vanillaDropMode
-            when (dropMode) {
-                VanillaDropMode.VANILLA -> event.drops
-                    .filterNot(::isPickedUp)
-                    .forEach { it.amount *= vanillaMobSettings.dropMultiplier.toInt() }
-                VanillaDropMode.COMBINE -> {
-                    event.drops
-                        .filterNot(::isPickedUp)
-                        .forEach { it.amount *= vanillaMobSettings.dropMultiplier.toInt() }
-                    event.drops.addAll(mobSettings.getDrops(vanillaMobSettings.extraDrops))
-                }
-                VanillaDropMode.CUSTOM -> {
-                    event.drops.clear()
-                    event.drops.addAll(mobSettings.getDrops(vanillaMobSettings.extraDrops))
-                }
-            }
-            if (dropMode !== VanillaDropMode.VANILLA && vanillaMobSettings.extraDrops > 0) {
-                val drops: List<ItemStack> = mobSettings.getDrops(vanillaMobSettings.extraDrops)
-                event.drops.addAll(drops)
-            }
+//        } else {
+//            val dropMode: VanillaDropMode = vanillaMobSettings.vanillaDropMode
+//            when (dropMode) {
+//                VanillaDropMode.VANILLA -> event.drops
+//                    .filterNot(::isPickedUp)
+//                    .forEach { it.amount *= vanillaMobSettings.dropMultiplier.toInt() }
+//                VanillaDropMode.COMBINE -> {
+//                    event.drops
+//                        .filterNot(::isPickedUp)
+//                        .forEach { it.amount *= vanillaMobSettings.dropMultiplier.toInt() }
+//                    event.drops.addAll(mobSettings.getDrops(vanillaMobSettings.extraDrops))
+//                }
+//                VanillaDropMode.CUSTOM -> {
+//                    event.drops.clear()
+//                    event.drops.addAll(mobSettings.getDrops(vanillaMobSettings.extraDrops))
+//                }
+//            }
+//            if (dropMode !== VanillaDropMode.VANILLA && vanillaMobSettings.extraDrops > 0) {
+//                val drops: List<ItemStack> = mobSettings.getDrops(vanillaMobSettings.extraDrops)
+//                event.drops.addAll(drops)
+//            }
+//        }
+//    }
         }
     }
 

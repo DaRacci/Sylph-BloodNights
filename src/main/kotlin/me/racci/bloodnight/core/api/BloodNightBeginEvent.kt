@@ -25,12 +25,13 @@ class BloodNightBeginEvent(world: World) : WorldEvent(world), Cancellable {
         this.cancelled = cancelled
     }
 
-    companion object {
-        private val HANDLERS: HandlerList = HandlerList()
-        val handlerList: HandlerList
-            get() = HANDLERS
-    }
+    override fun getHandlers() = handlerList
 
-    override fun getHandlers() =
-        HANDLERS
+    companion object {
+        private val handlerList = HandlerList()
+
+        @JvmStatic
+        fun getHandlerList() = handlerList
+
+    }
 }

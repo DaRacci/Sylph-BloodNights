@@ -97,8 +97,7 @@ class NightSelection : ConfigurationSerializable {
         probability = map.getValueOrDefault("probability", probability)
         // phases
         moonPhase = parsePhase(map.getValueOrDefault("phases", moonPhase.entries.map { "${it.key}:${it.value}" }))
-        phaseCustom =
-            parsePhase(map.getValueOrDefault("phasesCustom", phaseCustom.entries.map { "${it.key}:${it.value}" }))
+        phaseCustom = parsePhase(map.getValueOrDefault("phasesCustom", phaseCustom.entries.map { "${it.key}:${it.value}" }))
         verifyPhases()
         currPhase = map.getValueOrDefault("currPhase", currPhase)
         period = map.getValueOrDefault("period", period)
@@ -135,7 +134,7 @@ class NightSelection : ConfigurationSerializable {
 
     override fun serialize(): Map<String, Any> {
         val phases = moonPhase.entries.map { "${it.key}:${it.value}" }
-        val phasesCustom = phaseCustom.entries.stream().map { "${it.key}:${it.value}" }
+        val phasesCustom = phaseCustom.entries.map { "${it.key}:${it.value}" }
         return SerializationUtil.newBuilder()
             .add("probability", probability)
             .add("nightSelectionType", nightSelectionType.name)

@@ -233,6 +233,7 @@ object SpecialMobUtil {
         val f = SpecialMobRegistry.getMobFactoryByName(minionClass.simpleName)!!
         val ms = s.getMobByName(f.mobName)!!
         return location.world.spawn(location, f.entityType.entityClass!!) {
+            it.persistentDataContainer[MobManager.NO_DROP, PersistentDataType.BYTE] = 1.toByte()
             it.persistentDataContainer[MobManager.NO_TOUCH, PersistentDataType.BYTE] = 1.toByte()
             MobManager.delayedActions.schedule({ f.wrap(it as LivingEntity, s, ms) }, 1)
         } as T

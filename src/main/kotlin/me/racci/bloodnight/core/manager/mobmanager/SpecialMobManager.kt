@@ -10,13 +10,17 @@ import me.racci.bloodnight.core.manager.nightmanager.NightManager
 import me.racci.bloodnight.core.mobfactory.MobFactory
 import me.racci.bloodnight.specialmobs.SpecialMob
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
+import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021
 import org.bukkit.World
+import org.bukkit.attribute.Attribute
+import org.bukkit.entity.Ageable
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.*
+import org.bukkit.persistence.PersistentDataType
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 
@@ -35,7 +39,32 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
         val mobSetting = mobSettings.getMobByName(mobFactory.mobName) ?: return
 
         val specialMob = mobFactory.wrap(entity, mobSettings, mobSetting)
+        (entity as? Ageable)?.setAdult()
+        HollowsEve2021.dropChances(entity.equipment)
+        entity.health = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         registerMob(specialMob)
+    }
+
+    fun wrapHollowsEve(entity: Entity, mobFactory: MobFactory) {
+        if (entity !is LivingEntity) return
+        val mobSettings = configuration.getWorldSettings(entity.world.name).mobSettings
+        val mobSetting = mobSettings.getMobByName(mobFactory.mobName) ?: return
+
+        val mob = if(mobFactory.entityType != entity.type) {
+            val loc = entity.location
+            entity.remove()
+            loc.world.spawn(loc, mobFactory.entityType.entityClass!!) {
+                it.persistentDataContainer[MobManager.NO_TOUCH, PersistentDataType.BYTE] = 1.toByte()
+            } as LivingEntity
+        } else entity
+
+        val sm = mobFactory.wrap(mob, mobSettings, mobSetting)
+        (mob as? Ageable)?.setAdult()
+        HollowsEve2021.dropChances(mob.equipment)
+        mob.canPickupItems = false
+        mob.health = mob.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
+        registerMob(sm)
+
     }
 
     override fun run() {
@@ -151,6 +180,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
 
     @EventHandler
     fun onHit(event: EntityDamageByEntityEvent) {
+        if(!SpecialMobUtil.isSpecialMob(event.damager)) return
         getWorldMobs(event.entity.world).invokeIfPresent(event.entity) { it.onHit(event) }
     }
 

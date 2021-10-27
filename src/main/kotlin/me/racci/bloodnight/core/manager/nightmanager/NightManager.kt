@@ -14,6 +14,7 @@ import me.racci.bloodnight.core.manager.nightmanager.util.BloodNightData
 import me.racci.bloodnight.core.manager.nightmanager.util.NightUtil
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.util.getBossBarNamespace
+import me.racci.raccicore.utils.catch
 import me.racci.raccicore.utils.console
 import me.racci.raccicore.utils.extensions.pluginManager
 import org.bukkit.Bukkit
@@ -67,10 +68,12 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
         BloodNight.logger().info("Executing cleanup task on startup.")
         val s = BloodNight.instance.name.lowercase()
         var i = 0
-        Bukkit.getBossBars().forEach {
-            it.key.namespace.equals(s, true)
-            Bukkit.removeBossBar(it.key)
-            i++; BloodNight.logger().config("Removed 1 boss bar ${it.key}")
+        catch<Exception>() {
+            Bukkit.getBossBars().forEach {
+                it.key.namespace.equals(s, true)
+                Bukkit.removeBossBar(it.key)
+                i++; BloodNight.logger().config("Removed 1 boss bar ${it.key}")
+            }
         }
         BloodNight.logger().info("Removed $i hanging boss bars.")
     }
@@ -81,11 +84,21 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
             initializeBloodNight(startNight.poll(), false)
         }
 
-        while (forceNights.isNotEmpty()) {
-            forceNights
-                .filterNot { NightUtil.isNight(it, configuration.getWorldSettings(it)) }
-                .forEach(::initializeBloodNight)
+        val it = forceNights.iterator()
+        while (it.hasNext()) {
+            val world = it.next()
+            if (!NightUtil.isNight(world, configuration.getWorldSettings(world))) {
+                continue
+            }
+            initializeBloodNight(world, true)
+            it.remove()
         }
+
+//        while (forceNights.isNotEmpty()) {
+//            forceNights
+//                .filter{NightUtil.isNight(it, configuration.getWorldSettings(it))}
+//                .forEach{initializeBloodNight(it, true) ; forceNights.remove(it)}
+//        }
 
         while (endNight.isNotEmpty()) {
             resolveBloodNight(endNight.poll())
@@ -341,7 +354,7 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
      * @return unmodifiable Set of blood worlds.
      */
     val bloodWorldsSet: HashSet<World>
-        get() = bloodWorlds.keys as HashSet
+        get() = bloodWorlds.keys.toHashSet()
 
     fun startNight(world: World) {
         startNight.add(world)

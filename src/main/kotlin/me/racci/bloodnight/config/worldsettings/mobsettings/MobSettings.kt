@@ -4,6 +4,9 @@ import de.eldoria.eldoutilities.serialization.SerializationUtil
 import me.racci.bloodnight.core.BloodNight
 import me.racci.bloodnight.core.mobfactory.MobFactory
 import me.racci.bloodnight.core.mobfactory.SpecialMobRegistry
+import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021
+import me.racci.hollowseve.factories.ItemFactory
+import org.bukkit.Material
 import org.bukkit.configuration.serialization.ConfigurationSerializable
 import org.bukkit.configuration.serialization.SerializableAs
 import org.bukkit.inventory.ItemStack
@@ -101,11 +104,11 @@ class MobSettings : ConfigurationSerializable {
         getMobByName(mobName)?.active ?: false
 
     fun getDrops(mobSetting: MobSetting): List<ItemStack> {
-        val totalDrops = ArrayList(mobSetting.drops)
-        if (!mobSetting.overrideDefaultDrops) {
-            totalDrops.addAll(defaultDrops)
-        }
-        return getDrops(totalDrops, 1, mobSetting.getOverriddenDropAmount(dropAmount))
+//        val totalDrops = ArrayList(mobSetting.drops)
+//        if (!mobSetting.overrideDefaultDrops) {
+//            totalDrops.addAll(defaultDrops)
+//        }
+        return getDrops()//getDrops(totalDrops, 1, mobSetting.getOverriddenDropAmount(dropAmount))
     }
 
     /**
@@ -115,7 +118,7 @@ class MobSettings : ConfigurationSerializable {
      * @return list of length between 0 and drop amount
      */
     fun getDrops(dropAmount: Int) =
-        getDrops(defaultDrops, 0, dropAmount)
+        getDrops()//getDrops(defaultDrops, 0, dropAmount)
 
     /**
      * Get the amount of drops from a list of weighted drops
@@ -125,16 +128,47 @@ class MobSettings : ConfigurationSerializable {
      * @param minDrops   the min amount of drops
      * @return item stack list of length between 1 and drop amount
      */
-    private fun getDrops(totalDrops: List<Drop>, minDrops: Int, dropAmount: Int): List<ItemStack> {
-        if (dropAmount == 0) return ArrayList()
-        val totalWeight = totalDrops.stream().mapToInt(Drop::weight).sum()
+//    private fun getDrops(totalDrops: List<Drop>, minDrops: Int, dropAmount: Int): List<ItemStack> {
+//        if (dropAmount == 0) return ArrayList()
+//        val totalWeight = totalDrops.stream().mapToInt(Drop::weight).sum()
+//        val current: ThreadLocalRandom = ThreadLocalRandom.current()
+//        val nextInt: Int = current.nextInt(minDrops, dropAmount + 1)
+//        val result: MutableList<ItemStack> = ArrayList()
+//        var currentWeight = 0
+//        for (i in 0 until nextInt) {
+//            val goal: Int = current.nextInt(totalWeight + 1)
+//            for (drop in totalDrops) {
+//                currentWeight += drop.weight
+//                if (currentWeight < goal) continue
+//                result.add(ItemStack(drop.item.clone()))
+//                break
+//            }
+//        }
+//        return result
+//    }
+
+    private val hollowsEveDrops : ArrayList<WeightedDrops> = object : ArrayList<WeightedDrops>() {
+        init {
+            addAll(listOf(
+                WeightedDrops(ItemFactory[me.racci.hollowseve.enums.HollowsEve2021.CANDY_CORN].asQuantity(4), 10),
+                WeightedDrops(ItemStack(Material.IRON_INGOT).asQuantity(2), 10),
+                WeightedDrops(ItemStack(Material.BONE).asQuantity(3), 30),
+                WeightedDrops(HollowsEve2021.hollowsKey, 5),
+                WeightedDrops(ItemStack(Material.NETHERITE_SCRAP), 3),
+            ))
+        }
+    }
+
+    data class WeightedDrops(val item: ItemStack, val weight: Int)
+
+    private fun getDrops() : List<ItemStack> {
         val current: ThreadLocalRandom = ThreadLocalRandom.current()
-        val nextInt: Int = current.nextInt(minDrops, dropAmount + 1)
-        val result: MutableList<ItemStack> = ArrayList()
+        val nextInt: Int = current.nextInt(1, 3)
+        val result: ArrayList<ItemStack> = ArrayList()
         var currentWeight = 0
         for (i in 0 until nextInt) {
-            val goal: Int = current.nextInt(totalWeight + 1)
-            for (drop in totalDrops) {
+            val goal: Int = current.nextInt(101)
+            for (drop in hollowsEveDrops) {
                 currentWeight += drop.weight
                 if (currentWeight < goal) continue
                 result.add(ItemStack(drop.item.clone()))
@@ -142,6 +176,8 @@ class MobSettings : ConfigurationSerializable {
             }
         }
         return result
+
+
     }
 
     fun getMobByName(string: String): MobSetting? {

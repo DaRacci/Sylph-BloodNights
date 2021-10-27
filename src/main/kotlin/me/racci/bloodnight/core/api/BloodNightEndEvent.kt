@@ -9,11 +9,12 @@ import org.bukkit.event.world.WorldEvent
  */
 class BloodNightEndEvent(world: World) : WorldEvent(world) {
 
-    companion object {
-        private val HANDLERS: HandlerList = HandlerList()
-        val handlerList: HandlerList
-            get() = HANDLERS
-    }
+    override fun getHandlers() = handlerList
 
-    override fun getHandlers() = HANDLERS
+    companion object {
+        private val handlerList = org.bukkit.event.HandlerList()
+
+        @JvmStatic
+        fun getHandlerList() = handlerList
+    }
 }

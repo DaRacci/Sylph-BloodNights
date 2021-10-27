@@ -1,14 +1,12 @@
 name: BloodNight
 description: Make your nights a nightmare again
-author: Hadde
+author: Racci
 version: ${version}
-main: de.eldoria.bloodnight.core.BloodNight
-website: https://www.spigotmc.org/resources/85095
-api-version: 1.16
+main: me.racci.bloodnight.core.BloodNight
+api-version: 1.17
+depend: [ RacciCore, EcoEnchants ]
 softdepend:
   - Multiverse-Core
-  - Hyperverse
-  - MythicMobs
   - PlaceholderAPI
 
 commands:

@@ -11,6 +11,7 @@ import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.hollowsKey
 import me.racci.bloodnight.util.uuidBossBarNamespace
 import me.racci.hollowseve.enums.HollowsEve2021
 import me.racci.raccicore.utils.items.builders.ItemBuilder
+import me.racci.raccicore.utils.math.MathUtils
 import me.racci.raccicore.utils.now
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.colouredTextOf
@@ -57,7 +58,7 @@ object HollowsEve2021 {
         amount: Double,
         operation: AttributeModifier.Operation = AttributeModifier.Operation.ADD_SCALAR
     ) {
-        entity.getAttribute(attribute)?.addModifier(AttributeModifier(UUID.randomUUID(), "hollow", amount, operation))
+        entity.getAttribute(attribute)?.addModifier(AttributeModifier(UUID.randomUUID(), "hollow", MathUtils.getMultiplierFromPercent(amount), operation))
     }
 
 }
@@ -69,24 +70,9 @@ class HollowAdventurer(entity: Zombie) : AbstractZombie(entity) {
         attributeModifier(entity, Attribute.GENERIC_MOVEMENT_SPEED, 50.0)
         attributeModifier(entity, Attribute.GENERIC_MAX_HEALTH, 40.0)
         attributeModifier(entity, Attribute.GENERIC_FOLLOW_RANGE, 150.0)
-        var i = 0
-        val r = ThreadLocalRandom.current()
-        entity.equipment.apply {
-            while (i < 2) {
-                val s = r.nextInt(1, 4)
-                val armour = armorContents[s]
-                if (armour.type != Material.AIR) {
-                    when (s) {
-                        1 -> helmet = ItemStack(Material.IRON_HELMET)
-                        2 -> chestplate = ItemStack(Material.IRON_CHESTPLATE)
-                        3 -> leggings = ItemStack(Material.IRON_LEGGINGS)
-                        else -> boots = ItemStack(Material.IRON_BOOTS)
-                    }
-                    i++
-                } else continue
-            }
-            setItemInMainHand(ItemStack(Material.GOLDEN_SWORD))
-        }
+        entity.equipment.helmet = ItemStack(Material.IRON_HELMET)
+        entity.equipment.chestplate = ItemStack(Material.IRON_CHESTPLATE)
+        entity.equipment.setItemInMainHand(ItemStack(Material.GOLDEN_SWORD))
         SpecialMobUtil.spawnParticlesAround(entity, Particle.ASH, 10)
     }
 }
@@ -255,7 +241,7 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
     )
 
     init {
-        bossBar.progress = 100.0
+        bossBar.progress = 1.0
         entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.baseValue = 1000.0
         entity.getAttribute(Attribute.GENERIC_ARMOR)!!.baseValue = 10.0
         entity.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE)!!.baseValue = 20.0
@@ -278,12 +264,9 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
         } else damager as Player
         var hp = entity.health - event.finalDamage
         if (hp < 0.0) hp = 0.0
-        println(hp)
         hp = floor(hp * 100.0) / 100.0
-        println(hp)
         hp = hp * 100.0 / entity.maxHealth
-        println(hp)
-        bossBar.progress = hp
+        bossBar.progress = hp / 100
     }
 
     override fun onKill(event: EntityDeathEvent) {
@@ -316,11 +299,11 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
             for (it in nearbyEntities) {
                 if (it !is Player) continue
                 if (it in bossBar.players) continue
-                bossBar::addPlayer
+                bossBar.addPlayer(it)
             }
             for (it in bossBar.players) {
                 if (it in nearbyEntities) continue
-                bossBar::removePlayer
+                bossBar.removePlayer(it)
             }
         }
         val player = lastDamager ?: return
@@ -331,6 +314,7 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
             lastTeleport = now()
             val loc = player.location
             loc.add(player.eyeLocation.direction.normalize().multiply(-0.7)).add(0.0, 0.5, 0.0)
+            baseEntity.teleport(loc)
             baseEntity.target = player
             baseEntity.world.playSound(loc, Sound.ENTITY_GHAST_SCREAM, 1.0f, 1.0f)
             baseEntity.world.playSound(loc, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.0f, 1.0f)

@@ -10,3 +10,12 @@ dependencies {
     compileOnly(files("../API/NexEngine.jar"))
     implementation("de.eldoria", "eldo-util", "1.9.6-DEV")
 }
+
+tasks.processResources {
+    from(sourceSets.main.get().resources.srcDirs) {
+        filesMatching("plugin.yml") {
+            expand("version" to project.version)
+        }
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}

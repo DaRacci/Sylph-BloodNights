@@ -1,25 +1,7 @@
 package me.racci.bloodnight.core.mobfactory
 
 import me.racci.bloodnight.specialmobs.SpecialMob
-import me.racci.bloodnight.specialmobs.mobs.creeper.*
-import me.racci.bloodnight.specialmobs.mobs.enderman.FearfulEnderman
-import me.racci.bloodnight.specialmobs.mobs.enderman.ToxicEnderman
 import me.racci.bloodnight.specialmobs.mobs.events.*
-import me.racci.bloodnight.specialmobs.mobs.phantom.FearfulPhantom
-import me.racci.bloodnight.specialmobs.mobs.phantom.FirePhantom
-import me.racci.bloodnight.specialmobs.mobs.phantom.PhantomSoul
-import me.racci.bloodnight.specialmobs.mobs.skeleton.InvisibleSkeleton
-import me.racci.bloodnight.specialmobs.mobs.skeleton.MagicSkeleton
-import me.racci.bloodnight.specialmobs.mobs.slime.ToxicSlime
-import me.racci.bloodnight.specialmobs.mobs.spider.BlazeRider
-import me.racci.bloodnight.specialmobs.mobs.spider.SpeedSkeletonRider
-import me.racci.bloodnight.specialmobs.mobs.spider.WitherSkeletonRider
-import me.racci.bloodnight.specialmobs.mobs.witch.FireWizard
-import me.racci.bloodnight.specialmobs.mobs.witch.ThunderWizard
-import me.racci.bloodnight.specialmobs.mobs.witch.WitherWizard
-import me.racci.bloodnight.specialmobs.mobs.zombie.ArmoredZombie
-import me.racci.bloodnight.specialmobs.mobs.zombie.InvisibleZombie
-import me.racci.bloodnight.specialmobs.mobs.zombie.SpeedZombie
 import org.bukkit.entity.*
 import org.bukkit.entity.EntityType.*
 import java.util.*
@@ -41,19 +23,17 @@ object SpecialMobRegistry {
 
     private fun getMobBaseClass(entity: Entity): Class<out Entity>? {
         if (entity.type == UNKNOWN) return null
-        return ENTITY_MAPPINGS.computeIfAbsent(entity.type.entityClass ?: return null) { c ->
-            MOB_GROUPS.keys.firstOrNull { c.isAssignableFrom(it) }!!
-        }
-
-//        val mob = ENTITY_MAPPINGS.computeIfAbsent(entity.type.entityClass ?: return null) {
-//            for (clazz in MOB_GROUPS.keys) {
-//                if (clazz.isAssignableFrom(it)) {
-//                    return@computeIfAbsent clazz
-//                }
-//            }
-//            null
-//        }
-//        mob
+        return ENTITY_MAPPINGS.computeIfAbsent(
+            entity.type.entityClass!!,
+            Function<Class<out Entity>, Class<out Entity>> computeIfAbsent@{ k: Class<out Entity> ->
+                for (clazz in MOB_GROUPS.keys) {
+                    if (clazz.isAssignableFrom(k)) {
+                        return@computeIfAbsent clazz
+                    }
+                }
+                null
+            }
+        )
     }
 
     fun getMobGroup(entity: Entity): MobGroup? =
@@ -83,6 +63,7 @@ object SpecialMobRegistry {
         registeredMobs.firstOrNull { it.mobName.equals(arg, true) }
 
     init {
+        /*
         /*
         Initialize default mobs.
          */
@@ -192,8 +173,9 @@ object SpecialMobRegistry {
             ZOMBIE,
             SpeedZombie::class.java,
         ) { SpeedZombie(it as Zombie) }
+        */
 
-        /**
+        /*
          * HollowsEve2021 Mobs
          */
         registerMob(
