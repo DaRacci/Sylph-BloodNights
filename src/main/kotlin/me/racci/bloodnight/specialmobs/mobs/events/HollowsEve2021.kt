@@ -277,8 +277,8 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
     override fun onDeath(event: EntityDeathEvent) {
         bossBar.removeAll()
         event.deathSound = Sound.ENTITY_WITHER_DEATH
-        event.drops.add(hollowsKey.asQuantity(r.nextInt(1, 4)))
-        if (15 < r.nextInt(101)) event.drops.add(me.racci.hollowseve.factories.ItemFactory[HollowsEve2021.ONCE_HOLY_SABER])
+        event.drops.add(hollowsKey.asQuantity(r.nextInt(1, 3)))
+        if (5 > r.nextInt(101)) event.drops.add(me.racci.hollowseve.factories.ItemFactory[HollowsEve2021.ONCE_HOLY_SABER])
         Bukkit.broadcast(
             colouredTextOf(
                 "#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55&lh &f&l» &cA &4Harbinger &chas been slain!",
@@ -319,6 +319,10 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
             baseEntity.world.playSound(loc, Sound.ENTITY_GHAST_SCREAM, 1.0f, 1.0f)
             baseEntity.world.playSound(loc, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.0f, 1.0f)
         }
+    }
+
+    override fun onEnd() {
+        bossBar.removeAll()
     }
 
 

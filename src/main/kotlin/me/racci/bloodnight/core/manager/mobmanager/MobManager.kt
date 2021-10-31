@@ -174,7 +174,6 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
         BloodNight.logger().fine("Attempt to drop items.")
 
         if (SpecialMobUtil.isSpecialMob(entity)) {
-            event.drops.clear()
 //            if (!mobSettings.naturalDrops) {
 //                BloodNight.logger().fine("Natural Drops are disabled. Clear loot.")
 //                event.drops.clear()
