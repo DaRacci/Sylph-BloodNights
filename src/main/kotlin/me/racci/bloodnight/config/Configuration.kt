@@ -7,7 +7,6 @@ import me.racci.bloodnight.core.BloodNight
 import me.racci.raccicore.utils.catch
 import org.bukkit.Bukkit
 import org.bukkit.World
-import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.plugin.Plugin
 
 class Configuration(plugin: Plugin) : EldoConfig(plugin) {

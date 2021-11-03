@@ -7,10 +7,8 @@ import me.racci.bloodnight.config.worldsettings.mobsettings.MobSettings
 import me.racci.bloodnight.core.BloodNight
 import me.racci.bloodnight.specialmobs.SpecialMob
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
-import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeInstance
-import org.bukkit.entity.Ageable
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.LivingEntity
 import java.util.function.Function

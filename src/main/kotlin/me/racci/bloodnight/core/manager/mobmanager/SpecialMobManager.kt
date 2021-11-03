@@ -13,10 +13,7 @@ import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021
 import org.bukkit.World
 import org.bukkit.attribute.Attribute
-import org.bukkit.entity.Ageable
-import org.bukkit.entity.Entity
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.*
@@ -40,7 +37,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
 
         val specialMob = mobFactory.wrap(entity, mobSettings, mobSetting)
         (entity as? Ageable)?.setAdult()
-        HollowsEve2021.dropChances(entity.equipment)
+        HollowsEve2021.dropChances(entity)
         entity.health = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         registerMob(specialMob)
     }
@@ -60,7 +57,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
 
         val sm = mobFactory.wrap(mob, mobSettings, mobSetting)
         (mob as? Ageable)?.setAdult()
-        HollowsEve2021.dropChances(mob.equipment)
+        HollowsEve2021.dropChances(mob)
         mob.canPickupItems = false
         mob.health = mob.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         registerMob(sm)

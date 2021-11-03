@@ -3,7 +3,6 @@ package me.racci.bloodnight.core.manager.nightmanager.util
 import me.racci.bloodnight.config.worldsettings.sound.SoundSettings
 import me.racci.bloodnight.core.BloodNight
 import me.racci.bloodnight.util.getBossBarNamespace
-import me.racci.raccicore.RacciCore.Companion.plugin
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.getBossBars
 import org.bukkit.World
@@ -26,7 +25,7 @@ class BloodNightData(val world: World, val bossBar: BossBar?) {
 
     fun removePlayer(player: Player) {
         for(bossBar in getBossBars()) {
-            if(bossBar.key.namespace == plugin.name.lowercase() && bossBar.key.key.startsWith("bossBar", true)) {
+            if(bossBar.key.namespace == BloodNight.instance.name.lowercase() && bossBar.key.key.startsWith("bossBar", true)) {
                 bossBar.removePlayer(player)
             }
         }

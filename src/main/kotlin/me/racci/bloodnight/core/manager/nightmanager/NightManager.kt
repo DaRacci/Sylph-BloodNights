@@ -68,7 +68,7 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
         BloodNight.logger().info("Executing cleanup task on startup.")
         val s = BloodNight.instance.name.lowercase()
         var i = 0
-        catch<Exception>() {
+        catch<Exception> {
             Bukkit.getBossBars().forEach {
                 it.key.namespace.equals(s, true)
                 Bukkit.removeBossBar(it.key)

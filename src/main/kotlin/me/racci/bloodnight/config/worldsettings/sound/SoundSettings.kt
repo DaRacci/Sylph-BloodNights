@@ -16,7 +16,7 @@ class SoundSettings : ConfigurationSerializable {
     private var minInterval = 10
     private var maxInterval = 40
 
-    private var channel: SoundCategory = SoundCategory.AMBIENT;
+    private var channel: SoundCategory = SoundCategory.AMBIENT
     private var startSounds: ArrayList<SoundEntry> = object : ArrayList<SoundEntry>() {
         init {
             for (sound in Sounds.START) {

@@ -12,7 +12,7 @@ class BloodNightEndEvent(world: World) : WorldEvent(world) {
     override fun getHandlers() = handlerList
 
     companion object {
-        private val handlerList = org.bukkit.event.HandlerList()
+        private val handlerList = HandlerList()
 
         @JvmStatic
         fun getHandlerList() = handlerList

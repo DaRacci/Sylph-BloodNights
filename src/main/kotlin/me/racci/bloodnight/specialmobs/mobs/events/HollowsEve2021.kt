@@ -3,8 +3,11 @@ package me.racci.bloodnight.specialmobs.mobs.events
 import com.willfp.ecoenchants.enchantments.EcoEnchants
 import me.racci.bloodnight.config.worldsettings.deathactions.subsettings.ShockwaveSettings
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
-import me.racci.bloodnight.specialmobs.mobs.abstractmobs.*
+import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractExtendedPhantom
 import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractSkeleton
+import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractStray
+import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractWitherSkeleton
+import me.racci.bloodnight.specialmobs.mobs.abstractmobs.AbstractZombie
 import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.attributeModifier
 import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.dropChances
 import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.hollowsKey
@@ -15,25 +18,42 @@ import me.racci.raccicore.utils.math.MathUtils
 import me.racci.raccicore.utils.now
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.colouredTextOf
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.EntityEffect
+import org.bukkit.Material
+import org.bukkit.Particle
+import org.bukkit.Sound
 import org.bukkit.attribute.Attribute
 import org.bukkit.attribute.AttributeModifier
 import org.bukkit.boss.BarColor
 import org.bukkit.boss.BarStyle
 import org.bukkit.boss.BossBar
-import org.bukkit.enchantments.Enchantment.*
-import org.bukkit.entity.*
+import org.bukkit.enchantments.Enchantment.ARROW_DAMAGE
+import org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK
+import org.bukkit.enchantments.Enchantment.DAMAGE_ALL
+import org.bukkit.enchantments.Enchantment.KNOCKBACK
+import org.bukkit.enchantments.Enchantment.PROTECTION_PROJECTILE
+import org.bukkit.entity.Drowned
+import org.bukkit.entity.Husk
+import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Phantom
+import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
+import org.bukkit.entity.Skeleton
+import org.bukkit.entity.SpectralArrow
+import org.bukkit.entity.Stray
+import org.bukkit.entity.WitherSkeleton
+import org.bukkit.entity.Zombie
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDeathEvent
 import org.bukkit.event.entity.EntityTargetEvent
 import org.bukkit.event.entity.ProjectileHitEvent
-import org.bukkit.inventory.EntityEquipment
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import su.nightexpress.goldencrates.api.GoldenCratesAPI
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.floor
 
@@ -42,14 +62,15 @@ object HollowsEve2021 {
     val hollowsKey: ItemStack
         get() = GoldenCratesAPI.getKeyManager().getKeyById("hollowseve")!!.item
 
-    fun dropChances(e: EntityEquipment?) {
-        if (e == null) return
-        e.helmetDropChance = 0F
-        e.chestplateDropChance = 0F
-        e.leggingsDropChance = 0F
-        e.bootsDropChance = 0F
-        e.itemInMainHandDropChance = 0F
-        e.itemInOffHandDropChance = 0F
+    fun dropChances(e: LivingEntity) {
+        e.equipment?.apply {
+            helmetDropChance = 0F
+            chestplateDropChance = 0F
+            leggingsDropChance = 0F
+            bootsDropChance = 0F
+            itemInMainHandDropChance = 0F
+            itemInOffHandDropChance = 0F
+        }
     }
 
     fun attributeModifier(
@@ -145,7 +166,7 @@ class HollowRider(entity: Stray) : AbstractStray(entity) {
                     .enchant(EcoEnchants.TRIPLESHOT)
                     .build()
             )
-            dropChances(this)
+            dropChances(entity)
         }
     }
 
@@ -222,7 +243,6 @@ class HollowThrall(entity: Skeleton) : AbstractSkeleton(entity) {
         }
         val a = entity.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!
         a.baseValue = 40.0; entity.health = a.value
-        dropChances(entity.equipment)
     }
 
 }
@@ -259,9 +279,9 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
     override fun onDamageByEntity(event: EntityDamageByEntityEvent) {
         val damager = event.damager
         val entity = event.entity as? LivingEntity ?: return
-        lastDamager = if (damager is AbstractArrow && damager.shooter is Player) {
+        lastDamager = if (damager is Projectile && damager.shooter is Player) {
             damager.shooter as Player
-        } else damager as Player
+        } else damager as? Player
         var hp = entity.health - event.finalDamage
         if (hp < 0.0) hp = 0.0
         hp = floor(hp * 100.0) / 100.0
