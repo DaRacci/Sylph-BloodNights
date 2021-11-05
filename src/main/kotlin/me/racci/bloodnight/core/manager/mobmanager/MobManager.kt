@@ -184,10 +184,10 @@ class MobManager(val nightManager: NightManager, val configuration: Configuratio
 
         if (SpecialMobUtil.isSpecialMob(entity)) {
 //            if (!mobSettings.naturalDrops) {
-//                BloodNight.logger().fine("Natural Drops are disabled. Clear loot.")
+//                BloodNight.log().fine("Natural Drops are disabled. Clear loot.")
 //                event.drops.clear()
 //            } else {
-//                BloodNight.logger().fine("Natural Drops are enabled. Multiply loot.")
+//                BloodNight.log().fine("Natural Drops are enabled. Multiply loot.")
 //                for (drop in event.drops) {
 //                    if (isPickedUp(drop)) continue
 //                    drop.amount *= vanillaMobSettings.dropMultiplier.toInt()
