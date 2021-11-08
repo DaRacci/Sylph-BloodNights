@@ -15,7 +15,7 @@ import me.racci.bloodnight.core.manager.nightmanager.util.NightUtil
 import me.racci.bloodnight.specialmobs.SpecialMobUtil
 import me.racci.bloodnight.util.getBossBarNamespace
 import me.racci.raccicore.utils.catch
-import me.racci.raccicore.utils.console
+import me.racci.raccicore.utils.extensions.console
 import me.racci.raccicore.utils.extensions.pluginManager
 import org.bukkit.Bukkit
 import org.bukkit.Bukkit.dispatchCommand
@@ -29,11 +29,17 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.*
+import org.bukkit.event.player.PlayerBedEnterEvent
+import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerRespawnEvent
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.scheduler.BukkitRunnable
-import java.util.*
+import java.util.ArrayDeque
+import java.util.Collections
+import java.util.Queue
 import java.util.concurrent.ThreadLocalRandom
 
 class NightManager(private val configuration: Configuration) : BukkitRunnable(), Listener {
@@ -308,7 +314,7 @@ class NightManager(private val configuration: Configuration) : BukkitRunnable(),
         for (world in HashSet(bloodWorlds.keys)) {
             resolveBloodNight(world)
         }
-        BloodNight.logger().info("Night manager shutdown successful.")
+        BloodNight.logger().info("Night manager close successful.")
     }
 
     fun reload() {

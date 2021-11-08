@@ -17,7 +17,6 @@ import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.*
-import org.bukkit.persistence.PersistentDataType
 import org.bukkit.scheduler.BukkitRunnable
 import java.util.*
 
@@ -42,7 +41,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
         registerMob(specialMob)
     }
 
-    fun wrapHollowsEve(entity: Entity, mobFactory: MobFactory) {
+    /*fun wrapHollowsEve(entity: Entity, mobFactory: MobFactory) {
         if (entity !is LivingEntity) return
         val mobSettings = configuration.getWorldSettings(entity.world.name).mobSettings
         val mobSetting = mobSettings.getMobByName(mobFactory.mobName) ?: return
@@ -62,7 +61,7 @@ class SpecialMobManager(nightManager: NightManager, configuration: Configuration
         mob.health = mob.getAttribute(Attribute.GENERIC_MAX_HEALTH)!!.value
         registerMob(sm)
 
-    }
+    }*/
 
     override fun run() {
         for (bloodWorld in nightManager.bloodWorldsSet) {

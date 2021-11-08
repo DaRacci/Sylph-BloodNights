@@ -1,10 +1,42 @@
 package me.racci.bloodnight.core.mobfactory
 
 import me.racci.bloodnight.specialmobs.SpecialMob
-import me.racci.bloodnight.specialmobs.mobs.events.*
-import org.bukkit.entity.*
+import me.racci.bloodnight.specialmobs.mobs.creeper.EnderCreeper
+import me.racci.bloodnight.specialmobs.mobs.creeper.GhostCreeper
+import me.racci.bloodnight.specialmobs.mobs.creeper.NervousPoweredCreeper
+import me.racci.bloodnight.specialmobs.mobs.creeper.SpeedCreeper
+import me.racci.bloodnight.specialmobs.mobs.creeper.ToxicCreeper
+import me.racci.bloodnight.specialmobs.mobs.creeper.UnstableCreeper
+import me.racci.bloodnight.specialmobs.mobs.enderman.FearfulEnderman
+import me.racci.bloodnight.specialmobs.mobs.enderman.ToxicEnderman
+import me.racci.bloodnight.specialmobs.mobs.phantom.FearfulPhantom
+import me.racci.bloodnight.specialmobs.mobs.phantom.FirePhantom
+import me.racci.bloodnight.specialmobs.mobs.phantom.PhantomSoul
+import me.racci.bloodnight.specialmobs.mobs.skeleton.InvisibleSkeleton
+import me.racci.bloodnight.specialmobs.mobs.skeleton.MagicSkeleton
+import me.racci.bloodnight.specialmobs.mobs.slime.ToxicSlime
+import me.racci.bloodnight.specialmobs.mobs.spider.BlazeRider
+import me.racci.bloodnight.specialmobs.mobs.spider.SpeedSkeletonRider
+import me.racci.bloodnight.specialmobs.mobs.spider.WitherSkeletonRider
+import me.racci.bloodnight.specialmobs.mobs.witch.FireWizard
+import me.racci.bloodnight.specialmobs.mobs.witch.ThunderWizard
+import me.racci.bloodnight.specialmobs.mobs.witch.WitherWizard
+import me.racci.bloodnight.specialmobs.mobs.zombie.ArmoredZombie
+import me.racci.bloodnight.specialmobs.mobs.zombie.InvisibleZombie
+import me.racci.bloodnight.specialmobs.mobs.zombie.SpeedZombie
+import org.bukkit.entity.Creeper
+import org.bukkit.entity.Enderman
+import org.bukkit.entity.Entity
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.EntityType.*
-import java.util.*
+import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Phantom
+import org.bukkit.entity.Skeleton
+import org.bukkit.entity.Slime
+import org.bukkit.entity.Spider
+import org.bukkit.entity.Witch
+import org.bukkit.entity.Zombie
+import java.util.Collections
 import java.util.function.Function
 
 object SpecialMobRegistry {
@@ -63,10 +95,6 @@ object SpecialMobRegistry {
         registeredMobs.firstOrNull { it.mobName.equals(arg, true) }
 
     init {
-        /*
-        /*
-        Initialize default mobs.
-         */
         registerMob(
             CREEPER,
             EnderCreeper::class.java
@@ -173,12 +201,12 @@ object SpecialMobRegistry {
             ZOMBIE,
             SpeedZombie::class.java,
         ) { SpeedZombie(it as Zombie) }
-        */
+
 
         /*
          * HollowsEve2021 Mobs
          */
-        registerMob(
+        /*registerMob(
             ZOMBIE,
             HollowAdventurer::class.java
         ) { HollowAdventurer(it as Zombie) }
@@ -209,6 +237,6 @@ object SpecialMobRegistry {
         registerMob(
             WITHER_SKELETON,
             HollowHarbinger::class.java
-        ) { HollowHarbinger(it as WitherSkeleton) }
+        ) { HollowHarbinger(it as WitherSkeleton) }*/
     }
 }

@@ -12,9 +12,10 @@ import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.attributeModif
 import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.dropChances
 import me.racci.bloodnight.specialmobs.mobs.events.HollowsEve2021.hollowsKey
 import me.racci.bloodnight.util.uuidBossBarNamespace
-import me.racci.hollowseve.enums.HollowsEve2021
-import me.racci.raccicore.utils.items.builders.ItemBuilder
-import me.racci.raccicore.utils.math.MathUtils
+import me.racci.events.enums.HollowsEve2021
+import me.racci.events.factories.ItemFactory
+import me.racci.raccicore.builders.ItemBuilder
+import me.racci.raccicore.utils.MathUtils
 import me.racci.raccicore.utils.now
 import me.racci.raccicore.utils.strings.colour
 import me.racci.raccicore.utils.strings.colouredTextOf
@@ -110,12 +111,12 @@ class HollowArcher(entity: Skeleton) : AbstractSkeleton(entity) {
 
         entity.equipment.apply {
             helmet = ItemBuilder.from(Material.IRON_HELMET)
-                .enchant(PROTECTION_PROJECTILE, 3)
+                .enchant(PROTECTION_PROJECTILE to 3)
                 .build()
             setItemInMainHand(
                 ItemBuilder.from(Material.BOW)
-                    .enchant(ARROW_DAMAGE, 8)
-                    .enchant(ARROW_KNOCKBACK, 2)
+                    .enchant(ARROW_DAMAGE to 8)
+                    .enchant(ARROW_KNOCKBACK to 2)
                     .build()
             )
         }
@@ -161,9 +162,9 @@ class HollowRider(entity: Stray) : AbstractStray(entity) {
         entity.equipment.apply {
             setItemInMainHand(
                 ItemBuilder.from(Material.BOW)
-                    .enchant(ARROW_DAMAGE, 3)
-                    .enchant(EcoEnchants.AIMING)
-                    .enchant(EcoEnchants.TRIPLESHOT)
+                    .enchant(ARROW_DAMAGE to 3)
+                    .enchant(EcoEnchants.AIMING to 1)
+                    .enchant(EcoEnchants.TRIPLESHOT to 1)
                     .build()
             )
             dropChances(entity)
@@ -191,8 +192,8 @@ class HollowGoliath(entity: Husk) : AbstractZombie(entity) {
             boots = ItemStack(Material.NETHERITE_BOOTS)
             setItemInMainHand(
                 ItemBuilder.from(Material.DIAMOND_AXE)
-                    .enchant(DAMAGE_ALL, 6)
-                    .enchant(KNOCKBACK, 4)
+                    .enchant(DAMAGE_ALL to 6)
+                    .enchant(KNOCKBACK to 4)
                     .build()
             )
         }
@@ -250,9 +251,9 @@ class HollowThrall(entity: Skeleton) : AbstractSkeleton(entity) {
 class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
 
     private val r = ThreadLocalRandom.current()
-    private var lastPlayerCheck = now()
+    private var lastPlayerCheck = now().epochSeconds
     private var lastDamager: Player? = null
-    private var lastTeleport: Long = 0
+    private var lastTeleport: Long = now().epochSeconds
     private val bossBar: BossBar = Bukkit.createBossBar(
         uuidBossBarNamespace(baseEntity),
         colour("&4Hollow Harbinger"),
@@ -298,7 +299,7 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
         bossBar.removeAll()
         event.deathSound = Sound.ENTITY_WITHER_DEATH
         event.drops.add(hollowsKey.asQuantity(r.nextInt(1, 3)))
-        if (5 > r.nextInt(101)) event.drops.add(me.racci.hollowseve.factories.ItemFactory[HollowsEve2021.ONCE_HOLY_SABER])
+        if (5 > r.nextInt(101)) event.drops.add(ItemFactory[HollowsEve2021.ONCE_HOLY_SABER])
         Bukkit.broadcast(
             colouredTextOf(
                 "#ffaa00&lS#ffbf15&ly#ffd52b&ll#ffea40&lp#ffff55&lh &f&l» &cA &4Harbinger &chas been slain!",
@@ -313,8 +314,8 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
     }
 
     override fun tick() {
-        if (now() - lastPlayerCheck > 5) {
-            lastPlayerCheck = now()
+        if (now().epochSeconds - lastPlayerCheck > 5) {
+            lastPlayerCheck = now().epochSeconds
             val nearbyEntities = baseEntity.getNearbyEntities(50.0, 50.0, 50.0)
             for (it in nearbyEntities) {
                 if (it !is Player) continue
@@ -327,11 +328,11 @@ class HollowHarbinger(entity: WitherSkeleton) : AbstractWitherSkeleton(entity) {
             }
         }
         val player = lastDamager ?: return
-        if (now() - lastTeleport > 15) {
+        if (now().epochSeconds - lastTeleport > 15) {
             if (baseEntity.location.distance(player.location) > 50.0) {
                 lastDamager = null; return
             }
-            lastTeleport = now()
+            lastTeleport = now().epochSeconds
             val loc = player.location
             loc.add(player.eyeLocation.direction.normalize().multiply(-0.7)).add(0.0, 0.5, 0.0)
             baseEntity.teleport(loc)
