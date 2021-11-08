@@ -1,12 +1,23 @@
 plugins {
     id("java")
+    id("java-library")
+    id("maven-publish")
     id("version-catalog")
-    kotlin("jvm")
-    id("com.github.johnrengelman.shadow")
+    kotlin("jvm")                       version "1.6.0-RC2"
+    id("org.jetbrains.dokka")               version "1.5.31"
+    id("com.github.johnrengelman.shadow")   version "7.1.0"
 }
 
-group = "me.racci"
-version = "1.0.0"
+repositories {
+    gradlePluginPortal()
+    mavenCentral()
+    mavenLocal()
+    maven("https://jitpack.io")
+    maven("https://dl.bintray.com/kotlin/kotlin-dev/")
+    maven("https://eldonexus.de/repository/maven-public")
+    maven("https://repo.onarandombox.com/content/groups/public/")
+
+}
 
 dependencies {
     compileOnly(rootProject.libs.racciCore)
@@ -24,6 +35,10 @@ tasks {
     compileKotlin {
         kotlinOptions.suppressWarnings = true
         kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+    }
+
+    jar {
+        archiveClassifier.set("minimal")
     }
 
     build {
@@ -95,3 +110,6 @@ publishing {
         }
     }
 }
+
+group = findProperty("group")!!
+version = findProperty("version")!!
